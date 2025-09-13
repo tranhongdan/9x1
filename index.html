@@ -135,6 +135,7 @@
 
         // State variables
         let currentTable = null;
+        let currentNum1 = null;
         let currentNum2 = null;
         let score = 0;
         let totalQuestions = 0;
@@ -159,18 +160,30 @@
             quizSetup.classList.remove('hidden');
         }
 
-        function createTableSelection(container, onSelectCallback) {
+        function createTableSelection(container, onSelectCallback, isQuizMode = false) {
             container.innerHTML = '';
-            for (let i = 2; i <= 10; i++) {
+            const endRange = isQuizMode ? 9 : 10;
+            for (let i = 2; i <= endRange; i++) {
                 const button = document.createElement('button');
                 button.textContent = `${i}`;
                 button.dataset.table = i;
                 button.className = 'table-button text-lg font-bold py-3 px-2 rounded-lg bg-white shadow-md hover:bg-indigo-200 transition-all duration-300 border-2 border-indigo-200';
                 button.addEventListener('click', () => {
-                    // Highlight button in its own container
                     container.querySelectorAll('.table-button').forEach(btn => btn.classList.remove('active'));
                     button.classList.add('active');
                     onSelectCallback(i);
+                });
+                container.appendChild(button);
+            }
+            if (isQuizMode) {
+                const button = document.createElement('button');
+                button.textContent = `Ngẫu nhiên`;
+                button.dataset.table = 'random';
+                button.className = 'table-button text-lg font-bold py-3 px-2 rounded-lg bg-white shadow-md hover:bg-purple-200 transition-all duration-300 border-2 border-purple-300 bg-purple-100';
+                button.addEventListener('click', () => {
+                    container.querySelectorAll('.table-button').forEach(btn => btn.classList.remove('active'));
+                    button.classList.add('active');
+                    onSelectCallback('random');
                 });
                 container.appendChild(button);
             }
@@ -196,7 +209,7 @@
             
             // Setup
             createTableSelection(learnTableSelection, selectForLearn);
-            createTableSelection(quizTableSelection, selectForQuiz);
+            createTableSelection(quizTableSelection, selectForQuiz, true);
             createNumberPad();
             checkBtn.addEventListener('click', checkAnswer);
         }
@@ -260,8 +273,13 @@
         }
 
         function generateQuestion() {
+            if (currentTable === 'random') {
+                currentNum1 = Math.floor(Math.random() * 9) + 2; // Random table from 2 to 10
+            } else {
+                currentNum1 = currentTable;
+            }
             currentNum2 = Math.floor(Math.random() * 10) + 1;
-            questionEl.textContent = `${currentTable} x ${currentNum2} = ?`;
+            questionEl.textContent = `${currentNum1} x ${currentNum2} = ?`;
             
             handleClearClick();
             feedbackEl.textContent = '';
@@ -275,7 +293,7 @@
             if (selectedAnswerString === '' || isWaitingForNextQuestion) return;
 
             const userAnswer = parseInt(selectedAnswerString);
-            const correctAnswer = currentTable * currentNum2;
+            const correctAnswer = currentNum1 * currentNum2;
             
             totalQuestions++;
             toggleNumberPad(false);
