@@ -45,29 +45,37 @@
             display: none;
         }
         .screen.active {
-            display: block;
+            display: flex; /* Use flex for centering */
+            flex-direction: column;
+            justify-content: center;
+        }
+        canvas {
+            background-color: #f0fdf4; /* A light green background for the game */
+            border-radius: 8px;
+            border: 2px solid #86efac;
         }
     </style>
 </head>
 <body class="bg-gradient-to-br from-indigo-100 via-purple-100 to-pink-100 min-h-screen flex items-center justify-center p-4">
 
-    <div class="w-full max-w-lg md:max-w-3xl mx-auto bg-white/70 backdrop-blur-sm rounded-2xl shadow-2xl p-6 md:p-8">
+    <div class="w-full max-w-lg md:max-w-4xl mx-auto bg-white/70 backdrop-blur-sm rounded-2xl shadow-2xl p-4 md:p-6">
 
         <!-- Home Screen -->
         <div id="home-screen" class="screen active">
             <header class="text-center mb-8">
-                <h1 class="text-3xl md:text-5xl font-extrabold text-indigo-700">Bé Vui Học Bảng Cửu Chương</h1>
+                <h1 class="text-3xl md:text-5xl font-extrabold text-indigo-700">Bé Vui Học Toán</h1>
                 <p class="text-gray-600 mt-2 text-lg">Chào mừng bé! Hãy chọn một chế độ nhé.</p>
             </header>
-            <div class="flex flex-col md:flex-row gap-4">
-                <button id="go-to-learn" class="w-full text-2xl font-bold bg-blue-500 text-white p-8 rounded-xl shadow-lg hover:bg-blue-600 transition transform hover:scale-105">Học Bài</button>
-                <button id="go-to-quiz" class="w-full text-2xl font-bold bg-purple-500 text-white p-8 rounded-xl shadow-lg hover:bg-purple-600 transition transform hover:scale-105">Kiểm Tra</button>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <button id="go-to-learn" class="w-full text-2xl font-bold bg-blue-500 text-white p-6 md:p-8 rounded-xl shadow-lg hover:bg-blue-600 transition transform hover:scale-105">Học Bài</button>
+                <button id="go-to-quiz" class="w-full text-2xl font-bold bg-purple-500 text-white p-6 md:p-8 rounded-xl shadow-lg hover:bg-purple-600 transition transform hover:scale-105">Kiểm Tra</button>
+                <button id="go-to-snake" class="w-full text-2xl font-bold bg-green-500 text-white p-6 md:p-8 rounded-xl shadow-lg hover:bg-green-600 transition transform hover:scale-105">Rắn Săn Mồi</button>
             </div>
         </div>
 
         <!-- Learn Screen -->
         <div id="learn-screen" class="screen">
-            <button class="back-btn mb-4 font-bold text-indigo-600 hover:text-indigo-800">&larr; Quay về Trang chủ</button>
+            <button class="back-btn mb-4 font-bold text-indigo-600 hover:text-indigo-800 self-start">&larr; Quay về Trang chủ</button>
             <h2 class="text-xl md:text-2xl font-bold text-center text-purple-700 mb-4">Chọn Bảng Cửu Chương Để Học</h2>
             <div id="learn-table-selection" class="grid grid-cols-3 sm:grid-cols-5 md:grid-cols-9 gap-3 mb-6"></div>
             <div id="table-display-container" class="bg-indigo-50 p-6 rounded-xl shadow-md hidden">
@@ -78,12 +86,12 @@
 
         <!-- Quiz Screen -->
         <div id="quiz-screen" class="screen">
-            <button class="back-btn mb-4 font-bold text-indigo-600 hover:text-indigo-800">&larr; Quay về Trang chủ</button>
-            <div id="quiz-setup">
+            <button class="back-btn mb-4 font-bold text-indigo-600 hover:text-indigo-800 self-start">&larr; Quay về Trang chủ</button>
+            <div id="quiz-setup" class="w-full">
                 <h2 class="text-xl md:text-2xl font-bold text-center text-purple-700 mb-4">Chọn Bảng Cửu Chương Để Bắt Đầu</h2>
                 <div id="quiz-table-selection" class="grid grid-cols-3 sm:grid-cols-5 md:grid-cols-9 gap-3"></div>
             </div>
-             <div id="quiz-container" class="bg-purple-50 p-6 rounded-xl shadow-md hidden">
+             <div id="quiz-container" class="bg-purple-50 p-6 rounded-xl shadow-md hidden w-full">
                 <div class="flex justify-between items-center mb-6">
                     <h2 class="text-2xl md:text-3xl font-bold text-purple-700">Thử Tài Của Bé</h2>
                     <div id="score" class="text-2xl md:text-3xl text-indigo-800 font-bold bg-white px-4 py-2 rounded-lg shadow-inner">Điểm: 0/0</div>
@@ -109,23 +117,80 @@
                 </div>
             </div>
         </div>
+        
+        <!-- Snake Game Screen -->
+        <div id="snake-game-screen" class="screen">
+             <button class="back-btn mb-4 font-bold text-indigo-600 hover:text-indigo-800 self-start">&larr; Quay về Trang chủ</button>
+             <div class="flex flex-col lg:flex-row gap-4 w-full">
+                <!-- Game Canvas and Info -->
+                <div class="flex-grow">
+                    <div class="flex justify-between items-center mb-2">
+                         <h2 class="text-2xl md:text-3xl font-bold text-green-700">Rắn Săn Mồi</h2>
+                         <div id="snake-score" class="text-2xl md:text-3xl text-green-800 font-bold bg-white px-4 py-2 rounded-lg shadow-inner">Điểm: 0</div>
+                    </div>
+                    <div id="canvas-container" class="relative w-full aspect-[16/9] bg-gray-800 rounded-lg">
+                        <canvas id="snake-canvas"></canvas>
+                        <div id="food-label" class="absolute text-orange-600 font-bold text-center pointer-events-none hidden flex items-center justify-center"></div>
+                        <div id="game-over-screen" class="absolute inset-0 bg-black/50 text-white text-center flex-col justify-center items-center rounded-lg hidden">
+                            <h3 class="text-5xl font-extrabold">Thua Rồi!</h3>
+                            <p class="text-2xl mt-2">Điểm của bạn: <span id="final-score">0</span></p>
+                            <button id="restart-snake-btn" class="mt-6 bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-8 rounded-lg text-xl">Chơi Lại</button>
+                        </div>
+                    </div>
+                </div>
+                 <!-- Game Controls -->
+                <div class="w-full lg:w-64 flex-shrink-0">
+                    <div class="bg-green-50 p-4 rounded-xl shadow-md h-full flex flex-col justify-center">
+                         <div class="bg-white p-4 rounded-lg shadow-inner mb-4">
+                            <p id="snake-question" class="text-3xl font-bold text-gray-800 h-10 flex items-center justify-center">?</p>
+                        </div>
+                        <div id="snake-answer-box" class="bg-white p-3 rounded-lg shadow-inner mb-4 border-2 border-green-200 min-h-[52px] flex items-center justify-center">
+                            <p id="snake-selected-answer-display" class="text-2xl font-bold text-gray-800 tracking-widest">&nbsp;</p>
+                        </div>
+                        <div id="snake-number-pad" class="grid grid-cols-3 gap-2 mb-2"></div>
+                        <button id="snake-check-btn" class="w-full bg-green-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-green-700 transition" disabled>Trả Lời</button>
+                    </div>
+                </div>
+             </div>
+        </div>
+
     </div>
 
     <script>
-        // DOM Elements
+        // --- SHARED DOM ELEMENTS & FUNCTIONS ---
         const screens = document.querySelectorAll('.screen');
-        const goToLearnBtn = document.getElementById('go-to-learn');
-        const goToQuizBtn = document.getElementById('go-to-quiz');
         const backBtns = document.querySelectorAll('.back-btn');
 
+        function showScreen(screenId) {
+            screens.forEach(screen => {
+                screen.classList.remove('active');
+            });
+            const screenToShow = document.getElementById(screenId);
+            screenToShow.classList.add('active');
+            if (screenId === 'home-screen') {
+                resetAllGames();
+            }
+        }
+        
+        function resetAllGames() {
+            resetQuizState();
+            if (typeof stopSnakeGame === 'function') {
+               stopSnakeGame();
+            }
+        }
+        
+        backBtns.forEach(btn => btn.addEventListener('click', () => showScreen('home-screen')));
+
+
+        // --- MULTIPLICATION QUIZ LOGIC ---
+        const goToLearnBtn = document.getElementById('go-to-learn');
+        const goToQuizBtn = document.getElementById('go-to-quiz');
         const learnTableSelection = document.getElementById('learn-table-selection');
         const quizTableSelection = document.getElementById('quiz-table-selection');
         const quizSetup = document.getElementById('quiz-setup');
-
         const tableDisplayContainer = document.getElementById('table-display-container');
         const tableNumberDisplay = document.getElementById('table-number-display');
         const tableContent = document.getElementById('table-content');
-
         const quizContainer = document.getElementById('quiz-container');
         const questionEl = document.getElementById('question');
         const answerBox = document.getElementById('answer-box');
@@ -135,31 +200,14 @@
         const feedbackEl = document.getElementById('feedback');
         const scoreEl = document.getElementById('score');
 
-        // State variables
-        let currentTable = null;
-        let currentNum1 = null;
-        let currentNum2 = null;
-        let score = 0;
-        let totalQuestions = 0;
-        let selectedAnswerString = '';
-        let isWaitingForNextQuestion = false;
+        let quizCurrentTable = null, quizCurrentNum1 = null, quizCurrentNum2 = null, quizScore = 0, quizTotalQuestions = 0, quizSelectedAnswerString = '', isWaitingForNextQuizQuestion = false;
 
-        function showScreen(screenId) {
-            screens.forEach(screen => {
-                screen.classList.remove('active');
-            });
-            document.getElementById(screenId).classList.add('active');
-            if (screenId === 'home-screen') {
-                resetState();
-            }
-        }
-
-        function resetState() {
-            currentTable = null;
-            document.querySelectorAll('.table-button').forEach(btn => btn.classList.remove('active'));
+        function resetQuizState() {
+             quizCurrentTable = null;
+            document.querySelectorAll('#learn-table-selection .table-button, #quiz-table-selection .table-button').forEach(btn => btn.classList.remove('active'));
             tableDisplayContainer.classList.add('hidden');
             quizContainer.classList.add('hidden');
-            quizSetup.classList.remove('hidden');
+            quizSetup.style.display = 'block';
         }
 
         function createTableSelection(container, onSelectCallback, isQuizMode = false) {
@@ -190,150 +238,386 @@
                 container.appendChild(button);
             }
         }
+        function selectForLearn(tableNum) { quizCurrentTable = tableNum; displayTable(tableNum); }
+        function selectForQuiz(tableNum) { quizCurrentTable = tableNum; quizSetup.style.display = 'none'; quizContainer.classList.remove('hidden'); startQuiz(); }
         
-        function selectForLearn(tableNum) {
-            currentTable = tableNum;
-            displayTable(tableNum);
-        }
-
-        function selectForQuiz(tableNum) {
-            currentTable = tableNum;
-            quizSetup.classList.add('hidden');
-            quizContainer.classList.remove('hidden');
-            startQuiz();
-        }
-
-        function init() {
-            // Navigation
-            goToLearnBtn.addEventListener('click', () => showScreen('learn-screen'));
-            goToQuizBtn.addEventListener('click', () => showScreen('quiz-screen'));
-            backBtns.forEach(btn => btn.addEventListener('click', () => showScreen('home-screen')));
-            
-            // Setup
-            createTableSelection(learnTableSelection, selectForLearn);
-            createTableSelection(quizTableSelection, selectForQuiz, true);
-            createNumberPad();
-            checkBtn.addEventListener('click', checkAnswer);
-        }
-
-        function createNumberPad() {
-            numberPad.innerHTML = '';
+        function createNumberPad(container, onNumber, onClear) {
+            container.innerHTML = '';
             const buttons = ['1', '2', '3', '4', '5', '6', '7', '8', '9', 'Xóa', '0'];
             buttons.forEach(val => {
                 const button = document.createElement('button');
                 button.textContent = val;
-                button.className = 'number-pad-btn text-2xl font-bold py-4 rounded-lg bg-white shadow-md hover:bg-purple-200 transition-all duration-300 border-2 border-purple-200 focus:ring-2 focus:ring-purple-400';
-                
+                button.className = 'number-pad-btn text-2xl font-bold py-3 rounded-lg bg-white shadow-md hover:bg-purple-200 transition-all duration-300 border-2 border-purple-200 focus:ring-2 focus:ring-purple-400';
                 if (val === 'Xóa') {
                     button.classList.add('bg-pink-100', 'hover:bg-pink-200', 'border-pink-300', 'col-span-2');
-                    button.addEventListener('click', handleClearClick);
+                    button.addEventListener('click', onClear);
                 } else {
-                    button.addEventListener('click', () => handleNumberClick(val));
+                    button.addEventListener('click', () => onNumber(val));
                 }
-                numberPad.appendChild(button);
+                container.appendChild(button);
             });
         }
-
-        function handleNumberClick(digit) {
-            if (selectedAnswerString.length < 3 && !isWaitingForNextQuestion) {
-                selectedAnswerString += digit;
-                updateAnswerDisplay();
-            }
+        function handleQuizNumberClick(digit) { if (quizSelectedAnswerString.length < 3 && !isWaitingForNextQuizQuestion) { quizSelectedAnswerString += digit; updateQuizAnswerDisplay(); } }
+        function handleQuizClearClick() { quizSelectedAnswerString = ''; updateQuizAnswerDisplay(); }
+        function updateQuizAnswerDisplay() { selectedAnswerDisplay.innerHTML = quizSelectedAnswerString === '' ? '&nbsp;' : quizSelectedAnswerString; checkBtn.disabled = quizSelectedAnswerString === ''; }
+        function toggleQuizNumberPad(enabled) { numberPad.querySelectorAll('.number-pad-btn').forEach(btn => btn.disabled = !enabled); }
+        function displayTable(tableNum) { tableDisplayContainer.classList.remove('hidden'); tableNumberDisplay.textContent = tableNum; tableContent.innerHTML = ''; for (let i = 1; i <= 10; i++) { const p = document.createElement('p'); p.textContent = `${tableNum} x ${i} = ${tableNum * i}`; p.className = "py-1 px-2 rounded hover:bg-indigo-200 transition-colors"; tableContent.appendChild(p); } }
+        function startQuiz() { quizScore = 0; quizTotalQuestions = 0; updateQuizScore(); generateQuizQuestion(); }
+        function generateQuizQuestion() {
+            if (quizCurrentTable === 'random') { quizCurrentNum1 = Math.floor(Math.random() * 9) + 2; } else { quizCurrentNum1 = quizCurrentTable; }
+            quizCurrentNum2 = Math.floor(Math.random() * 10) + 1;
+            questionEl.textContent = `${quizCurrentNum1} x ${quizCurrentNum2} = ?`;
+            handleQuizClearClick();
+            feedbackEl.textContent = ''; feedbackEl.className = 'mt-3 h-8 text-2xl font-bold';
+            toggleQuizNumberPad(true); isWaitingForNextQuizQuestion = false;
         }
-
-        function handleClearClick() {
-            selectedAnswerString = '';
-            updateAnswerDisplay();
-        }
-
-        function updateAnswerDisplay() {
-            selectedAnswerDisplay.innerHTML = selectedAnswerString === '' ? '&nbsp;' : selectedAnswerString;
-            checkBtn.disabled = selectedAnswerString === '';
-        }
-
-        function toggleNumberPad(enabled) {
-            document.querySelectorAll('.number-pad-btn').forEach(btn => btn.disabled = !enabled);
-        }
-        
-        function displayTable(tableNum) {
-            tableDisplayContainer.classList.remove('hidden');
-            tableNumberDisplay.textContent = tableNum;
-            tableContent.innerHTML = '';
-            for (let i = 1; i <= 10; i++) {
-                const p = document.createElement('p');
-                p.textContent = `${tableNum} x ${i} = ${tableNum * i}`;
-                p.className = "py-1 px-2 rounded hover:bg-indigo-200 transition-colors";
-                tableContent.appendChild(p);
-            }
-        }
-        
-        function startQuiz() {
-            score = 0;
-            totalQuestions = 0;
-            updateScore();
-            generateQuestion();
-        }
-
-        function generateQuestion() {
-            if (currentTable === 'random') {
-                currentNum1 = Math.floor(Math.random() * 9) + 2; // Random table from 2 to 10
-            } else {
-                currentNum1 = currentTable;
-            }
-            currentNum2 = Math.floor(Math.random() * 10) + 1;
-            questionEl.textContent = `${currentNum1} x ${currentNum2} = ?`;
-            
-            handleClearClick();
-            feedbackEl.textContent = '';
-            feedbackEl.className = 'mt-3 h-8 text-2xl font-bold';
-            
-            toggleNumberPad(true);
-            isWaitingForNextQuestion = false;
-        }
-
-        function checkAnswer() {
-            if (selectedAnswerString === '' || isWaitingForNextQuestion) return;
-
-            const userAnswer = parseInt(selectedAnswerString);
-            const correctAnswer = currentNum1 * currentNum2;
-            
-            totalQuestions++;
-            toggleNumberPad(false);
-
+        function checkQuizAnswer() {
+            if (quizSelectedAnswerString === '' || isWaitingForNextQuizQuestion) return;
+            const userAnswer = parseInt(quizSelectedAnswerString);
+            const correctAnswer = quizCurrentNum1 * quizCurrentNum2;
+            quizTotalQuestions++;
+            toggleQuizNumberPad(false);
             if (userAnswer === correctAnswer) {
-                isWaitingForNextQuestion = true;
-                score++;
-                
-                feedbackEl.textContent = 'Chính xác! Hoan hô!';
-                feedbackEl.className = 'mt-3 h-8 text-2xl font-bold text-green-600 feedback-correct';
-                answerBox.classList.add('flash-green');
-                checkBtn.disabled = true;
-
-                setTimeout(() => {
-                    answerBox.classList.remove('flash-green');
-                    generateQuestion();
-                }, 1500);
-
+                isWaitingForNextQuizQuestion = true; quizScore++;
+                feedbackEl.textContent = 'Chính xác! Hoan hô!'; feedbackEl.className = 'mt-3 h-8 text-2xl font-bold text-green-600 feedback-correct';
+                answerBox.classList.add('flash-green'); checkBtn.disabled = true;
+                setTimeout(() => { answerBox.classList.remove('flash-green'); generateQuizQuestion(); }, 1500);
             } else {
-                feedbackEl.textContent = `Sai rồi! Thử lại nhé!`;
-                feedbackEl.className = 'mt-3 h-8 text-2xl font-bold text-red-600 feedback-wrong';
+                feedbackEl.textContent = `Sai rồi! Thử lại nhé!`; feedbackEl.className = 'mt-3 h-8 text-2xl font-bold text-red-600 feedback-wrong';
                 answerBox.classList.add('flash-red');
-
-                setTimeout(() => {
-                    answerBox.classList.remove('flash-red');
-                    handleClearClick();
-                    toggleNumberPad(true);
-                }, 800);
+                setTimeout(() => { answerBox.classList.remove('flash-red'); handleQuizClearClick(); toggleQuizNumberPad(true); }, 800);
             }
-            updateScore();
+            updateQuizScore();
+        }
+        function updateQuizScore() { scoreEl.textContent = `Điểm: ${quizScore}/${quizTotalQuestions}`; }
+
+        function initQuiz() {
+            goToLearnBtn.addEventListener('click', () => showScreen('learn-screen'));
+            goToQuizBtn.addEventListener('click', () => showScreen('quiz-screen'));
+            createTableSelection(learnTableSelection, selectForLearn);
+            createTableSelection(quizTableSelection, selectForQuiz, true);
+            createNumberPad(numberPad, handleQuizNumberClick, handleQuizClearClick);
+            checkBtn.addEventListener('click', checkQuizAnswer);
+        }
+        initQuiz();
+
+        // --- SNAKE GAME LOGIC ---
+        const goToSnakeBtn = document.getElementById('go-to-snake');
+        const canvas = document.getElementById('snake-canvas');
+        const ctx = canvas.getContext('2d');
+        const canvasContainer = document.getElementById('canvas-container');
+        const foodLabel = document.getElementById('food-label');
+        const snakeScoreEl = document.getElementById('snake-score');
+        const snakeQuestionEl = document.getElementById('snake-question');
+        const snakeAnswerBox = document.getElementById('snake-answer-box');
+        const snakeSelectedAnswerDisplay = document.getElementById('snake-selected-answer-display');
+        const snakeNumberPad = document.getElementById('snake-number-pad');
+        const snakeCheckBtn = document.getElementById('snake-check-btn');
+        const gameOverScreen = document.getElementById('game-over-screen');
+        const finalScoreEl = document.getElementById('final-score');
+        const restartSnakeBtn = document.getElementById('restart-snake-btn');
+
+        let snake, food, snakeScore, cols, rows, cellSize;
+        let path, currentPathIndex, snakeAnimationTimeout;
+        let snakeSelectedAnswerString = '';
+        let snakeGameOver = false;
+        let isMoving = false;
+        let animationFrameId;
+
+        let isFoodFlashing = false, flashState = true, lastFlashTime = 0;
+
+        const baseGrid = { cols: 16, rows: 9 };
+        const levelThresholds = { 5: { cols: 20, rows: 12 }, 10: { cols: 24, rows: 15 }, 15: { cols: 28, rows: 18 }};
+
+        function resizeCanvas() {
+            const containerWidth = canvasContainer.clientWidth;
+            const aspectRatio = cols / rows;
+            canvas.width = containerWidth;
+            canvas.height = containerWidth / aspectRatio;
+            if (canvas.height > canvasContainer.clientHeight) {
+                canvas.height = canvasContainer.clientHeight;
+                canvas.width = canvas.height * aspectRatio;
+            }
+            cellSize = canvas.width / cols;
+            updateFoodLabel();
         }
 
-        function updateScore() {
-            scoreEl.textContent = `Điểm: ${score}/${totalQuestions}`;
+        function getGridSizeForScore(score) {
+            let currentGrid = { ...baseGrid };
+            for (const threshold in levelThresholds) {
+                if (score >= threshold) {
+                    currentGrid = levelThresholds[threshold];
+                }
+            }
+            return currentGrid;
         }
 
-        // Run the app
-        init();
+        function startSnakeGame() {
+            gameOverScreen.style.display = 'none';
+            foodLabel.classList.add('hidden');
+            snakeGameOver = false;
+            snakeScore = 0;
+            const grid = getGridSizeForScore(snakeScore);
+            cols = grid.cols;
+            rows = grid.rows;
+
+            snake = [{ x: 2, y: 0 }, { x: 1, y: 0 }, { x: 0, y: 0 }];
+            snake.pop(); // Start with length 2
+            path = null;
+            
+            updateSnakeScore();
+            generateFood();
+            resizeCanvas();
+            if (animationFrameId) cancelAnimationFrame(animationFrameId);
+            gameLoop();
+        }
+        
+        function stopSnakeGame() {
+            snakeGameOver = true;
+            if (animationFrameId) {
+                cancelAnimationFrame(animationFrameId);
+                animationFrameId = null;
+            }
+        }
+
+        function gameLoop() {
+            if (snakeGameOver) return;
+            drawGame();
+            animationFrameId = requestAnimationFrame(gameLoop);
+        }
+
+        function drawGame() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            // Draw snake
+            snake.forEach((part, index) => {
+                ctx.fillStyle = index === 0 ? '#16a34a' : '#4ade80'; // Darker green for head
+                ctx.fillRect(part.x * cellSize, part.y * cellSize, cellSize, cellSize);
+                ctx.strokeStyle = '#f0fdf4';
+                ctx.strokeRect(part.x * cellSize, part.y * cellSize, cellSize, cellSize);
+            });
+            
+            // Draw flashing food target if snake is moving towards it
+            if (isFoodFlashing && food) {
+                const now = Date.now();
+                if (now - lastFlashTime > 150) { // Flash speed
+                    flashState = !flashState;
+                    lastFlashTime = now;
+                }
+                if (flashState) {
+                    ctx.fillStyle = 'rgba(249, 115, 22, 0.8)'; // Orange flash
+                    ctx.fillRect(food.x * cellSize, food.y * cellSize, cellSize, cellSize);
+                    ctx.strokeStyle = '#fefce8';
+                    ctx.lineWidth = 2;
+                    ctx.strokeRect(food.x * cellSize + 1, food.y * cellSize + 1, cellSize - 2, cellSize - 2);
+                }
+            }
+        }
+        
+        function updateFoodLabel() {
+            if (food && !snakeGameOver && !isMoving) { // Only show label when not moving
+                foodLabel.textContent = `${food.num1}x${food.num2}`;
+                foodLabel.style.width = `${cellSize}px`;
+                foodLabel.style.height = `${cellSize}px`;
+                foodLabel.style.left = `${food.x * cellSize}px`;
+                foodLabel.style.top = `${food.y * cellSize}px`;
+                
+                const baseCellSize = canvas.width / baseGrid.cols;
+                const targetFontSize = Math.max(16, baseCellSize * 0.65); 
+                const finalFontSize = Math.min(targetFontSize, cellSize * 0.9);
+                
+                foodLabel.style.fontSize = `${finalFontSize}px`;
+                
+                foodLabel.classList.remove('hidden');
+            } else {
+                foodLabel.classList.add('hidden');
+            }
+        }
+
+        function isPositionOnSnake(x, y, ignoreHead = false) {
+            const snakeParts = ignoreHead ? snake.slice(1) : snake;
+            return snakeParts.some(part => part.x === x && part.y === y);
+        }
+
+        function generateFood() {
+            let foodX, foodY;
+            do {
+                foodX = Math.floor(Math.random() * cols);
+                foodY = Math.floor(Math.random() * rows);
+            } while (isPositionOnSnake(foodX, foodY));
+            
+            const num1 = Math.floor(Math.random() * 9) + 2;
+            const num2 = Math.floor(Math.random() * 10) + 1;
+            
+            food = { x: foodX, y: foodY, num1: num1, num2: num2, answer: num1 * num2 };
+            snakeQuestionEl.textContent = `${num1} x ${num2} = ?`;
+            handleSnakeClearClick();
+            toggleSnakeNumberPad(true);
+            updateFoodLabel();
+        }
+        
+        function handleSnakeNumberClick(digit) { if (snakeSelectedAnswerString.length < 3 && !isMoving) { snakeSelectedAnswerString += digit; updateSnakeAnswerDisplay(); } }
+        function handleSnakeClearClick() { snakeSelectedAnswerString = ''; updateSnakeAnswerDisplay(); }
+        function updateSnakeAnswerDisplay() { snakeSelectedAnswerDisplay.innerHTML = snakeSelectedAnswerString === '' ? '&nbsp;' : snakeSelectedAnswerString; snakeCheckBtn.disabled = snakeSelectedAnswerString === ''; }
+        function toggleSnakeNumberPad(enabled) { snakeNumberPad.querySelectorAll('.number-pad-btn').forEach(btn => btn.disabled = !enabled); snakeCheckBtn.disabled = !enabled || snakeSelectedAnswerString === ''; }
+        
+        function checkSnakeAnswer() {
+            if (isMoving || snakeSelectedAnswerString === '') return;
+            const userAnswer = parseInt(snakeSelectedAnswerString);
+            
+            toggleSnakeNumberPad(false);
+
+            if (userAnswer === food.answer) {
+                foodLabel.classList.add('hidden');
+                snakeAnswerBox.classList.add('flash-green');
+                path = findShortestPath(snake[0], food);
+                if (path) {
+                    isFoodFlashing = true;
+                    lastFlashTime = Date.now();
+                    flashState = true;
+                    isMoving = true;
+                    currentPathIndex = 0;
+                    moveSnake();
+                } else { // No path found! Expand the grid as a reward.
+                    isFoodFlashing = false; // Ensure flashing is off
+                    let currentKey = 0;
+                    for (const key in levelThresholds) {
+                        if (levelThresholds[key].cols === cols) {
+                            currentKey = parseInt(key);
+                            break;
+                        }
+                    }
+                    const sortedKeys = Object.keys(levelThresholds).map(Number).sort((a, b) => a - b);
+                    const nextLevelKey = sortedKeys.find(key => key > currentKey);
+
+                    if (nextLevelKey) {
+                        const newGrid = levelThresholds[nextLevelKey];
+                        cols = newGrid.cols;
+                        rows = newGrid.rows;
+                        resizeCanvas();
+                        
+                        // Reward player: move snake head to food & grow
+                        snake.unshift({x: food.x, y: food.y}); 
+                        snakeScore++;
+                        updateSnakeScore();
+                        generateFood(); // Generate new food in the bigger grid
+                    } else {
+                        // At max size, can't expand. Just generate new food.
+                        generateFood();
+                    }
+                }
+                 setTimeout(() => {
+                    snakeAnswerBox.classList.remove('flash-green');
+                }, 800);
+            } else { // Wrong answer - New Logic
+                snakeAnswerBox.classList.add('flash-red');
+                snake.pop(); // Shorten snake
+                snakeScore = Math.max(0, snakeScore - 1); // Decrease score, not below 0
+                updateSnakeScore();
+
+                if (snake.length < 1) {
+                    gameOver();
+                } else {
+                   // Allow user to try again on the same question
+                   setTimeout(() => {
+                        snakeAnswerBox.classList.remove('flash-red');
+                        handleSnakeClearClick();
+                        toggleSnakeNumberPad(true);
+                   }, 800);
+                }
+            }
+        }
+        
+        function moveSnake() {
+            if (!path || currentPathIndex >= path.length) {
+                // Reached destination
+                isFoodFlashing = false;
+                isMoving = false;
+                snakeScore++;
+                updateSnakeScore();
+                // Check for level up
+                const newGrid = getGridSizeForScore(snakeScore);
+                if (newGrid.cols !== cols) {
+                    cols = newGrid.cols;
+                    rows = newGrid.rows;
+                    resizeCanvas();
+                }
+                generateFood();
+                return;
+            }
+
+            const nextStep = path[currentPathIndex];
+            const newHead = { x: nextStep.x, y: nextStep.y };
+
+            // Check for self-collision before moving
+            if (isPositionOnSnake(newHead.x, newHead.y, true)) {
+                 gameOver();
+                 return;
+            }
+
+            snake.unshift(newHead); // Add new head
+
+            // If it's the last step, don't pop tail (grow)
+            // Otherwise, pop tail to move
+            if (currentPathIndex < path.length - 1) {
+                snake.pop();
+            }
+
+            currentPathIndex++;
+            snakeAnimationTimeout = setTimeout(moveSnake, 100);
+        }
+
+        function findShortestPath(start, end) {
+            const queue = [[start]];
+            const visited = new Set([`${start.x},${start.y}`]);
+            
+            while (queue.length > 0) {
+                const path = queue.shift();
+                const pos = path[path.length - 1];
+
+                if (pos.x === end.x && pos.y === end.y) {
+                    return path.slice(1); // Return path without the start node
+                }
+
+                const directions = [[0, 1], [0, -1], [1, 0], [-1, 0]];
+                for (const [dx, dy] of directions) {
+                    const nextX = pos.x + dx;
+                    const nextY = pos.y + dy;
+
+                    if (nextX >= 0 && nextX < cols && nextY >= 0 && nextY < rows && !visited.has(`${nextX},${nextY}`) && !isPositionOnSnake(nextX, nextY, true)) {
+                        visited.add(`${nextX},${nextY}`);
+                        const newPath = [...path, {x: nextX, y: nextY}];
+                        queue.push(newPath);
+                    }
+                }
+            }
+            return null; // No path found
+        }
+        
+        function updateSnakeScore() { snakeScoreEl.textContent = `Điểm: ${snakeScore}`; }
+
+        function gameOver() {
+            snakeGameOver = true;
+            isMoving = false;
+            isFoodFlashing = false;
+            clearTimeout(snakeAnimationTimeout);
+            foodLabel.classList.add('hidden');
+            finalScoreEl.textContent = snakeScore;
+            gameOverScreen.style.display = 'flex';
+        }
+
+        function initSnakeGame() {
+            goToSnakeBtn.addEventListener('click', () => {
+                showScreen('snake-game-screen');
+                startSnakeGame();
+            });
+            const snakeNumberPadContainer = document.getElementById('snake-number-pad');
+            createNumberPad(snakeNumberPadContainer, handleSnakeNumberClick, handleSnakeClearClick);
+            snakeCheckBtn.addEventListener('click', checkSnakeAnswer);
+            restartSnakeBtn.addEventListener('click', startSnakeGame);
+            window.addEventListener('resize', resizeCanvas);
+        }
+        initSnakeGame();
+
     </script>
 </body>
 </html>
