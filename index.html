@@ -67,9 +67,9 @@
                 <p class="text-gray-600 mt-2 text-lg">Chào mừng bé! Hãy chọn một chế độ nhé.</p>
             </header>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <button id="go-to-learn" class="w-full text-2xl font-bold bg-blue-500 text-white p-6 md:p-8 rounded-xl shadow-lg hover:bg-blue-600 transition transform hover:scale-105">Học Bài</button>
-                <button id="go-to-quiz" class="w-full text-2xl font-bold bg-purple-500 text-white p-6 md:p-8 rounded-xl shadow-lg hover:bg-purple-600 transition transform hover:scale-105">Kiểm Tra</button>
-                <button id="go-to-snake" class="w-full text-2xl font-bold bg-green-500 text-white p-6 md:p-8 rounded-xl shadow-lg hover:bg-green-600 transition transform hover:scale-105">Rắn Săn Mồi</button>
+                <button id="go-to-learn" class="w-full text-xl md:text-2xl font-bold bg-blue-500 text-white p-5 md:p-8 rounded-xl shadow-lg hover:bg-blue-600 transition transform hover:scale-105">Học Bài</button>
+                <button id="go-to-quiz" class="w-full text-xl md:text-2xl font-bold bg-purple-500 text-white p-5 md:p-8 rounded-xl shadow-lg hover:bg-purple-600 transition transform hover:scale-105">Kiểm Tra</button>
+                <button id="go-to-snake" class="w-full text-xl md:text-2xl font-bold bg-green-500 text-white p-5 md:p-8 rounded-xl shadow-lg hover:bg-green-600 transition transform hover:scale-105">Rắn Săn Mồi</button>
             </div>
         </div>
 
@@ -77,7 +77,7 @@
         <div id="learn-screen" class="screen">
             <button class="back-btn mb-4 font-bold text-indigo-600 hover:text-indigo-800 self-start">&larr; Quay về Trang chủ</button>
             <h2 class="text-xl md:text-2xl font-bold text-center text-purple-700 mb-4">Chọn Bảng Cửu Chương Để Học</h2>
-            <div id="learn-table-selection" class="grid grid-cols-3 sm:grid-cols-5 md:grid-cols-9 gap-3 mb-6"></div>
+            <div id="learn-table-selection" class="grid grid-cols-3 sm:grid-cols-5 md:grid-cols-9 gap-2 mb-6"></div>
             <div id="table-display-container" class="bg-indigo-50 p-6 rounded-xl shadow-md hidden">
                 <h2 class="text-2xl font-bold text-center text-indigo-700 mb-4">Bảng Cửu Chương <span id="table-number-display"></span></h2>
                 <div id="table-content" class="text-lg text-gray-800 text-center grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2"></div>
@@ -89,7 +89,7 @@
             <button class="back-btn mb-4 font-bold text-indigo-600 hover:text-indigo-800 self-start">&larr; Quay về Trang chủ</button>
             <div id="quiz-setup" class="w-full">
                 <h2 class="text-xl md:text-2xl font-bold text-center text-purple-700 mb-4">Chọn Bảng Cửu Chương Để Bắt Đầu</h2>
-                <div id="quiz-table-selection" class="grid grid-cols-3 sm:grid-cols-5 md:grid-cols-9 gap-3"></div>
+                <div id="quiz-table-selection" class="grid grid-cols-3 sm:grid-cols-5 md:grid-cols-9 gap-2"></div>
             </div>
              <div id="quiz-container" class="bg-purple-50 p-6 rounded-xl shadow-md hidden w-full">
                 <div class="flex justify-between items-center mb-6">
@@ -106,7 +106,7 @@
                                 <p id="selected-answer-display" class="text-3xl font-bold text-gray-800 tracking-widest">&nbsp;</p>
                             </div>
                         </div>
-                        <div id="number-pad" class="grid grid-cols-3 gap-3 mb-4"></div>
+                        <div id="number-pad" class="grid grid-cols-3 gap-2 mb-4"></div>
                     </div>
                     <div class="text-center">
                         <div id="feedback" class="mt-3 h-8 text-2xl font-bold"></div>
@@ -217,7 +217,7 @@
                 const button = document.createElement('button');
                 button.textContent = `${i}`;
                 button.dataset.table = i;
-                button.className = 'table-button text-lg font-bold py-3 px-2 rounded-lg bg-white shadow-md hover:bg-indigo-200 transition-all duration-300 border-2 border-indigo-200';
+                button.className = 'table-button text-base sm:text-lg font-bold py-2 sm:py-3 px-2 rounded-lg bg-white shadow-md hover:bg-indigo-200 transition-all duration-300 border-2 border-indigo-200';
                 button.addEventListener('click', () => {
                     container.querySelectorAll('.table-button').forEach(btn => btn.classList.remove('active'));
                     button.classList.add('active');
@@ -229,7 +229,7 @@
                 const button = document.createElement('button');
                 button.textContent = `Ngẫu nhiên`;
                 button.dataset.table = 'random';
-                button.className = 'table-button text-lg font-bold py-3 px-2 rounded-lg bg-white shadow-md hover:bg-purple-200 transition-all duration-300 border-2 border-purple-300 bg-purple-100';
+                button.className = 'table-button text-base sm:text-lg font-bold py-2 sm:py-3 px-2 rounded-lg bg-white shadow-md hover:bg-purple-200 transition-all duration-300 border-2 border-purple-300 bg-purple-100';
                 button.addEventListener('click', () => {
                     container.querySelectorAll('.table-button').forEach(btn => btn.classList.remove('active'));
                     button.classList.add('active');
@@ -247,7 +247,7 @@
             buttons.forEach(val => {
                 const button = document.createElement('button');
                 button.textContent = val;
-                button.className = 'number-pad-btn text-2xl font-bold py-3 rounded-lg bg-white shadow-md hover:bg-purple-200 transition-all duration-300 border-2 border-purple-200 focus:ring-2 focus:ring-purple-400';
+                button.className = 'number-pad-btn text-xl sm:text-2xl font-bold py-3 rounded-lg bg-white shadow-md hover:bg-purple-200 transition-all duration-300 border-2 border-purple-200 focus:ring-2 focus:ring-purple-400';
                 if (val === 'Xóa') {
                     button.classList.add('bg-pink-100', 'hover:bg-pink-200', 'border-pink-300', 'col-span-2');
                     button.addEventListener('click', onClear);
@@ -460,6 +460,30 @@
         function updateSnakeAnswerDisplay() { snakeSelectedAnswerDisplay.innerHTML = snakeSelectedAnswerString === '' ? '&nbsp;' : snakeSelectedAnswerString; snakeCheckBtn.disabled = snakeSelectedAnswerString === ''; }
         function toggleSnakeNumberPad(enabled) { snakeNumberPad.querySelectorAll('.number-pad-btn').forEach(btn => btn.disabled = !enabled); snakeCheckBtn.disabled = !enabled || snakeSelectedAnswerString === ''; }
         
+        function isPathSafe(pathToFollow) {
+            const tempSnake = snake.map(p => ({...p})); // Create a copy to simulate on
+
+            for (let i = 0; i < pathToFollow.length; i++) {
+                const nextHeadPos = pathToFollow[i];
+
+                // Check if the next head position collides with the body.
+                // The head is allowed to move into the last segment of the tail, as that segment will move away.
+                const body = tempSnake.slice(0, tempSnake.length - 1); 
+                if (body.some(part => part.x === nextHeadPos.x && part.y === nextHeadPos.y)) {
+                    return false; // Path leads to collision
+                }
+
+                // Simulate the move
+                tempSnake.unshift({ ...nextHeadPos }); // Add new head
+                if (i < pathToFollow.length - 1) {
+                    // Not the final step (eating), so tail moves
+                    tempSnake.pop();
+                }
+            }
+
+            return true; // Path is safe
+        }
+        
         function checkSnakeAnswer() {
             if (isMoving || snakeSelectedAnswerString === '') return;
             const userAnswer = parseInt(snakeSelectedAnswerString);
@@ -470,7 +494,7 @@
                 foodLabel.classList.add('hidden');
                 snakeAnswerBox.classList.add('flash-green');
                 path = findShortestPath(snake[0], food);
-                if (path) {
+                if (path && isPathSafe(path)) {
                     isFoodFlashing = true;
                     lastFlashTime = Date.now();
                     flashState = true;
