@@ -2,7 +2,7 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Học Bảng Cửu Chương Vui Nhộn</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -11,6 +11,7 @@
     <style>
         body {
             font-family: 'Baloo 2', cursive;
+            overscroll-behavior: none; /* Prevents pull-to-refresh */
         }
         .table-button.active {
             background-color: #4f46e5;
@@ -45,23 +46,33 @@
             display: none;
         }
         .screen.active {
-            display: flex; /* Use flex for centering */
+            display: flex;
             flex-direction: column;
             justify-content: center;
         }
         canvas {
-            background-color: #f0fdf4; /* A light green background for the game */
+            background-color: #f0fdf4;
             border-radius: 8px;
             border: 2px solid #86efac;
+        }
+        .number-row-btn {
+            transition: all 0.2s ease-in-out;
+        }
+        .number-row-btn.active {
+            background-color: #4f46e5;
+            color: white;
+            transform: scale(1.1);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            border-color: #4f46e5;
         }
     </style>
 </head>
 <body class="bg-gradient-to-br from-indigo-100 via-purple-100 to-pink-100 min-h-screen flex items-center justify-center p-4">
 
-    <div class="w-full max-w-lg md:max-w-4xl mx-auto bg-white/70 backdrop-blur-sm rounded-2xl shadow-2xl p-4 md:p-6">
+    <div id="main-container" class="w-full max-w-lg md:max-w-4xl h-full mx-auto bg-white/70 backdrop-blur-sm rounded-2xl shadow-2xl p-4 md:p-6 transition-all duration-300">
 
         <!-- Home Screen -->
-        <div id="home-screen" class="screen active">
+        <div id="home-screen" class="screen active h-full">
             <header class="text-center mb-8">
                 <h1 class="text-3xl md:text-5xl font-extrabold text-indigo-700">Bé Vui Học Toán</h1>
                 <p class="text-gray-600 mt-2 text-lg">Chào mừng bé! Hãy chọn một chế độ nhé.</p>
@@ -74,7 +85,7 @@
         </div>
 
         <!-- Learn Screen -->
-        <div id="learn-screen" class="screen">
+        <div id="learn-screen" class="screen h-full">
             <button class="back-btn mb-4 font-bold text-indigo-600 hover:text-indigo-800 self-start">&larr; Quay về Trang chủ</button>
             <h2 class="text-xl md:text-2xl font-bold text-center text-purple-700 mb-4">Chọn Bảng Cửu Chương Để Học</h2>
             <div id="learn-table-selection" class="grid grid-cols-3 sm:grid-cols-5 md:grid-cols-9 gap-2 mb-6"></div>
@@ -85,7 +96,7 @@
         </div>
 
         <!-- Quiz Screen -->
-        <div id="quiz-screen" class="screen">
+        <div id="quiz-screen" class="screen h-full">
             <button class="back-btn mb-4 font-bold text-indigo-600 hover:text-indigo-800 self-start">&larr; Quay về Trang chủ</button>
             <div id="quiz-setup" class="w-full">
                 <h2 class="text-xl md:text-2xl font-bold text-center text-purple-700 mb-4">Chọn Bảng Cửu Chương Để Bắt Đầu</h2>
@@ -119,45 +130,43 @@
         </div>
         
         <!-- Snake Game Screen -->
-        <div id="snake-game-screen" class="screen">
-             <button class="back-btn mb-4 font-bold text-indigo-600 hover:text-indigo-800 self-start">&larr; Quay về Trang chủ</button>
-             <div class="flex flex-col lg:flex-row gap-4 w-full">
-                <!-- Game Canvas and Info -->
-                <div class="flex-grow">
-                    <div class="flex justify-between items-center mb-2">
-                         <h2 class="text-2xl md:text-3xl font-bold text-green-700">Rắn Săn Mồi</h2>
-                         <div id="snake-score" class="text-2xl md:text-3xl text-green-800 font-bold bg-white px-4 py-2 rounded-lg shadow-inner">Điểm: 0</div>
-                    </div>
-                    <div id="canvas-container" class="relative w-full aspect-[16/9] bg-gray-800 rounded-lg">
-                        <canvas id="snake-canvas"></canvas>
-                        <div id="food-label" class="absolute text-orange-600 font-bold text-center pointer-events-none hidden flex items-center justify-center"></div>
-                        <div id="game-over-screen" class="absolute inset-0 bg-black/50 text-white text-center flex-col justify-center items-center rounded-lg hidden">
-                            <h3 class="text-5xl font-extrabold">Thua Rồi!</h3>
-                            <p class="text-2xl mt-2">Điểm của bạn: <span id="final-score">0</span></p>
-                            <button id="restart-snake-btn" class="mt-6 bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-8 rounded-lg text-xl">Chơi Lại</button>
+        <div id="snake-game-screen" class="screen !justify-start h-full">
+            <div class="flex justify-between items-center w-full p-2 bg-white/30 backdrop-blur-sm">
+                <button class="back-btn font-bold text-indigo-600 hover:text-indigo-800 self-start p-2 rounded-lg bg-white/50">&larr; Quay về</button>
+                <h2 id="snake-question-display" class="text-3xl md:text-5xl font-bold text-orange-600">3 x 4 = ?</h2>
+                <div id="snake-score" class="text-xl md:text-3xl text-green-800 font-bold bg-white/50 px-4 py-2 rounded-lg shadow-inner">Điểm: 0</div>
+            </div>
+            <div id="canvas-container" class="relative w-full flex-grow bg-gray-800">
+                <canvas id="snake-canvas"></canvas>
+                <div id="game-over-screen" class="absolute inset-0 bg-black/70 text-white text-center flex-col justify-center items-center rounded-lg hidden">
+                    <h3 class="text-5xl font-extrabold">Thua Rồi!</h3>
+                    <p class="text-2xl mt-2">Điểm của bạn: <span id="final-score">0</span></p>
+                    <button id="restart-snake-btn" class="mt-6 bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-8 rounded-lg text-xl">Chơi Lại</button>
+                </div>
+            </div>
+            <div id="snake-controls" class="w-full p-2 md:p-4 bg-white/50 backdrop-blur-sm">
+                <div class="flex justify-center items-center gap-2 md:gap-4">
+                    <div class="flex flex-col gap-1">
+                        <div id="tens-row" class="flex items-center gap-1 overflow-x-auto">
+                            <span class="font-bold text-gray-600 w-12 text-right text-sm flex-shrink-0">Chục</span>
+                            <!-- JS will populate this -->
                         </div>
+                        <div id="units-row" class="flex items-center gap-1 overflow-x-auto">
+                             <span class="font-bold text-gray-600 w-12 text-right text-sm flex-shrink-0">Đơn vị</span>
+                            <!-- JS will populate this -->
+                        </div>
+                    </div>
+                    <div id="snake-submit-btn" class="flex-shrink-0 w-20 h-20 md:w-24 md:h-24 bg-green-500 rounded-full flex items-center justify-center text-white text-3xl md:text-4xl font-bold shadow-lg cursor-pointer transform transition hover:scale-110 active:scale-95">
+                        <span id="snake-answer-display">0</span>
                     </div>
                 </div>
-                 <!-- Game Controls -->
-                <div class="w-full lg:w-64 flex-shrink-0">
-                    <div class="bg-green-50 p-4 rounded-xl shadow-md h-full flex flex-col justify-center">
-                         <div class="bg-white p-4 rounded-lg shadow-inner mb-4">
-                            <p id="snake-question" class="text-3xl font-bold text-gray-800 h-10 flex items-center justify-center">?</p>
-                        </div>
-                        <div id="snake-answer-box" class="bg-white p-3 rounded-lg shadow-inner mb-4 border-2 border-green-200 min-h-[52px] flex items-center justify-center">
-                            <p id="snake-selected-answer-display" class="text-2xl font-bold text-gray-800 tracking-widest">&nbsp;</p>
-                        </div>
-                        <div id="snake-number-pad" class="grid grid-cols-3 gap-2 mb-2"></div>
-                        <button id="snake-check-btn" class="w-full bg-green-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-green-700 transition" disabled>Trả Lời</button>
-                    </div>
-                </div>
-             </div>
+            </div>
         </div>
-
     </div>
 
     <script>
         // --- SHARED DOM ELEMENTS & FUNCTIONS ---
+        const mainContainer = document.getElementById('main-container');
         const screens = document.querySelectorAll('.screen');
         const backBtns = document.querySelectorAll('.back-btn');
 
@@ -167,6 +176,17 @@
             });
             const screenToShow = document.getElementById(screenId);
             screenToShow.classList.add('active');
+
+            if (screenId === 'snake-game-screen') {
+                document.body.style.overflow = 'hidden';
+                mainContainer.classList.remove('max-w-lg', 'md:max-w-4xl', 'p-4', 'md:p-6', 'rounded-2xl');
+                mainContainer.classList.add('w-screen', 'h-screen', 'p-0', 'rounded-none', 'max-w-none');
+            } else {
+                document.body.style.overflow = '';
+                mainContainer.classList.add('max-w-lg', 'md:max-w-4xl', 'p-4', 'md:p-6', 'rounded-2xl');
+                mainContainer.classList.remove('w-screen', 'h-screen', 'p-0', 'rounded-none', 'max-w-none');
+            }
+
             if (screenId === 'home-screen') {
                 resetAllGames();
             }
@@ -181,8 +201,7 @@
         
         backBtns.forEach(btn => btn.addEventListener('click', () => showScreen('home-screen')));
 
-
-        // --- MULTIPLICATION QUIZ LOGIC ---
+        // --- MULTIPLICATION QUIZ LOGIC (Unchanged) ---
         const goToLearnBtn = document.getElementById('go-to-learn');
         const goToQuizBtn = document.getElementById('go-to-quiz');
         const learnTableSelection = document.getElementById('learn-table-selection');
@@ -199,181 +218,147 @@
         const checkBtn = document.getElementById('check-btn');
         const feedbackEl = document.getElementById('feedback');
         const scoreEl = document.getElementById('score');
-
         let quizCurrentTable = null, quizCurrentNum1 = null, quizCurrentNum2 = null, quizScore = 0, quizTotalQuestions = 0, quizSelectedAnswerString = '', isWaitingForNextQuizQuestion = false;
-
-        function resetQuizState() {
-             quizCurrentTable = null;
-            document.querySelectorAll('#learn-table-selection .table-button, #quiz-table-selection .table-button').forEach(btn => btn.classList.remove('active'));
-            tableDisplayContainer.classList.add('hidden');
-            quizContainer.classList.add('hidden');
-            quizSetup.style.display = 'block';
-        }
-
-        function createTableSelection(container, onSelectCallback, isQuizMode = false) {
-            container.innerHTML = '';
-            const endRange = isQuizMode ? 9 : 10;
-            for (let i = 2; i <= endRange; i++) {
-                const button = document.createElement('button');
-                button.textContent = `${i}`;
-                button.dataset.table = i;
-                button.className = 'table-button text-base sm:text-lg font-bold py-2 sm:py-3 px-2 rounded-lg bg-white shadow-md hover:bg-indigo-200 transition-all duration-300 border-2 border-indigo-200';
-                button.addEventListener('click', () => {
-                    container.querySelectorAll('.table-button').forEach(btn => btn.classList.remove('active'));
-                    button.classList.add('active');
-                    onSelectCallback(i);
-                });
-                container.appendChild(button);
-            }
-            if (isQuizMode) {
-                const button = document.createElement('button');
-                button.textContent = `Ngẫu nhiên`;
-                button.dataset.table = 'random';
-                button.className = 'table-button text-base sm:text-lg font-bold py-2 sm:py-3 px-2 rounded-lg bg-white shadow-md hover:bg-purple-200 transition-all duration-300 border-2 border-purple-300 bg-purple-100';
-                button.addEventListener('click', () => {
-                    container.querySelectorAll('.table-button').forEach(btn => btn.classList.remove('active'));
-                    button.classList.add('active');
-                    onSelectCallback('random');
-                });
-                container.appendChild(button);
-            }
-        }
+        function resetQuizState() { quizCurrentTable = null; document.querySelectorAll('#learn-table-selection .table-button, #quiz-table-selection .table-button').forEach(btn => btn.classList.remove('active')); tableDisplayContainer.classList.add('hidden'); quizContainer.classList.add('hidden'); quizSetup.style.display = 'block'; }
+        function createTableSelection(container, onSelectCallback, isQuizMode = false) { container.innerHTML = ''; const endRange = isQuizMode ? 9 : 10; for (let i = 2; i <= endRange; i++) { const button = document.createElement('button'); button.textContent = `${i}`; button.dataset.table = i; button.className = 'table-button text-base sm:text-lg font-bold py-2 sm:py-3 px-2 rounded-lg bg-white shadow-md hover:bg-indigo-200 transition-all duration-300 border-2 border-indigo-200'; button.addEventListener('click', () => { container.querySelectorAll('.table-button').forEach(btn => btn.classList.remove('active')); button.classList.add('active'); onSelectCallback(i); }); container.appendChild(button); } if (isQuizMode) { const button = document.createElement('button'); button.textContent = `Ngẫu nhiên`; button.dataset.table = 'random'; button.className = 'table-button text-base sm:text-lg font-bold py-2 sm:py-3 px-2 rounded-lg bg-white shadow-md hover:bg-purple-200 transition-all duration-300 border-2 border-purple-300 bg-purple-100'; button.addEventListener('click', () => { container.querySelectorAll('.table-button').forEach(btn => btn.classList.remove('active')); button.classList.add('active'); onSelectCallback('random'); }); container.appendChild(button); } }
         function selectForLearn(tableNum) { quizCurrentTable = tableNum; displayTable(tableNum); }
         function selectForQuiz(tableNum) { quizCurrentTable = tableNum; quizSetup.style.display = 'none'; quizContainer.classList.remove('hidden'); startQuiz(); }
-        
-        function createNumberPad(container, onNumber, onClear) {
-            container.innerHTML = '';
-            const buttons = ['1', '2', '3', '4', '5', '6', '7', '8', '9', 'Xóa', '0'];
-            buttons.forEach(val => {
-                const button = document.createElement('button');
-                button.textContent = val;
-                button.className = 'number-pad-btn text-xl sm:text-2xl font-bold py-3 rounded-lg bg-white shadow-md hover:bg-purple-200 transition-all duration-300 border-2 border-purple-200 focus:ring-2 focus:ring-purple-400';
-                if (val === 'Xóa') {
-                    button.classList.add('bg-pink-100', 'hover:bg-pink-200', 'border-pink-300', 'col-span-2');
-                    button.addEventListener('click', onClear);
-                } else {
-                    button.addEventListener('click', () => onNumber(val));
-                }
-                container.appendChild(button);
-            });
-        }
+        function createNumberPad(container, onNumber, onClear) { container.innerHTML = ''; const buttons = ['1', '2', '3', '4', '5', '6', '7', '8', '9', 'Xóa', '0']; buttons.forEach(val => { const button = document.createElement('button'); button.textContent = val; button.className = 'number-pad-btn text-xl sm:text-2xl font-bold py-3 rounded-lg bg-white shadow-md hover:bg-purple-200 transition-all duration-300 border-2 border-purple-200 focus:ring-2 focus:ring-purple-400'; if (val === 'Xóa') { button.classList.add('bg-pink-100', 'hover:bg-pink-200', 'border-pink-300', 'col-span-2'); button.addEventListener('click', onClear); } else { button.addEventListener('click', () => onNumber(val)); } container.appendChild(button); }); }
         function handleQuizNumberClick(digit) { if (quizSelectedAnswerString.length < 3 && !isWaitingForNextQuizQuestion) { quizSelectedAnswerString += digit; updateQuizAnswerDisplay(); } }
         function handleQuizClearClick() { quizSelectedAnswerString = ''; updateQuizAnswerDisplay(); }
         function updateQuizAnswerDisplay() { selectedAnswerDisplay.innerHTML = quizSelectedAnswerString === '' ? '&nbsp;' : quizSelectedAnswerString; checkBtn.disabled = quizSelectedAnswerString === ''; }
         function toggleQuizNumberPad(enabled) { numberPad.querySelectorAll('.number-pad-btn').forEach(btn => btn.disabled = !enabled); }
         function displayTable(tableNum) { tableDisplayContainer.classList.remove('hidden'); tableNumberDisplay.textContent = tableNum; tableContent.innerHTML = ''; for (let i = 1; i <= 10; i++) { const p = document.createElement('p'); p.textContent = `${tableNum} x ${i} = ${tableNum * i}`; p.className = "py-1 px-2 rounded hover:bg-indigo-200 transition-colors"; tableContent.appendChild(p); } }
         function startQuiz() { quizScore = 0; quizTotalQuestions = 0; updateQuizScore(); generateQuizQuestion(); }
-        function generateQuizQuestion() {
-            if (quizCurrentTable === 'random') { quizCurrentNum1 = Math.floor(Math.random() * 9) + 2; } else { quizCurrentNum1 = quizCurrentTable; }
-            quizCurrentNum2 = Math.floor(Math.random() * 10) + 1;
-            questionEl.textContent = `${quizCurrentNum1} x ${quizCurrentNum2} = ?`;
-            handleQuizClearClick();
-            feedbackEl.textContent = ''; feedbackEl.className = 'mt-3 h-8 text-2xl font-bold';
-            toggleQuizNumberPad(true); isWaitingForNextQuizQuestion = false;
-        }
-        function checkQuizAnswer() {
-            if (quizSelectedAnswerString === '' || isWaitingForNextQuizQuestion) return;
-            const userAnswer = parseInt(quizSelectedAnswerString);
-            const correctAnswer = quizCurrentNum1 * quizCurrentNum2;
-            quizTotalQuestions++;
-            toggleQuizNumberPad(false);
-            if (userAnswer === correctAnswer) {
-                isWaitingForNextQuizQuestion = true; quizScore++;
-                feedbackEl.textContent = 'Chính xác! Hoan hô!'; feedbackEl.className = 'mt-3 h-8 text-2xl font-bold text-green-600 feedback-correct';
-                answerBox.classList.add('flash-green'); checkBtn.disabled = true;
-                setTimeout(() => { answerBox.classList.remove('flash-green'); generateQuizQuestion(); }, 1500);
-            } else {
-                feedbackEl.textContent = `Sai rồi! Thử lại nhé!`; feedbackEl.className = 'mt-3 h-8 text-2xl font-bold text-red-600 feedback-wrong';
-                answerBox.classList.add('flash-red');
-                setTimeout(() => { answerBox.classList.remove('flash-red'); handleQuizClearClick(); toggleQuizNumberPad(true); }, 800);
-            }
-            updateQuizScore();
-        }
+        function generateQuizQuestion() { if (quizCurrentTable === 'random') { quizCurrentNum1 = Math.floor(Math.random() * 9) + 2; } else { quizCurrentNum1 = quizCurrentTable; } quizCurrentNum2 = Math.floor(Math.random() * 10) + 1; questionEl.textContent = `${quizCurrentNum1} x ${quizCurrentNum2} = ?`; handleQuizClearClick(); feedbackEl.textContent = ''; feedbackEl.className = 'mt-3 h-8 text-2xl font-bold'; toggleQuizNumberPad(true); isWaitingForNextQuizQuestion = false; }
+        function checkQuizAnswer() { if (quizSelectedAnswerString === '' || isWaitingForNextQuizQuestion) return; const userAnswer = parseInt(quizSelectedAnswerString); const correctAnswer = quizCurrentNum1 * quizCurrentNum2; quizTotalQuestions++; toggleQuizNumberPad(false); if (userAnswer === correctAnswer) { isWaitingForNextQuizQuestion = true; quizScore++; feedbackEl.textContent = 'Chính xác! Hoan hô!'; feedbackEl.className = 'mt-3 h-8 text-2xl font-bold text-green-600 feedback-correct'; answerBox.classList.add('flash-green'); checkBtn.disabled = true; setTimeout(() => { answerBox.classList.remove('flash-green'); generateQuizQuestion(); }, 1500); } else { feedbackEl.textContent = `Sai rồi! Thử lại nhé!`; feedbackEl.className = 'mt-3 h-8 text-2xl font-bold text-red-600 feedback-wrong'; answerBox.classList.add('flash-red'); setTimeout(() => { answerBox.classList.remove('flash-red'); handleQuizClearClick(); toggleQuizNumberPad(true); }, 800); } updateQuizScore(); }
         function updateQuizScore() { scoreEl.textContent = `Điểm: ${quizScore}/${quizTotalQuestions}`; }
-
-        function initQuiz() {
-            goToLearnBtn.addEventListener('click', () => showScreen('learn-screen'));
-            goToQuizBtn.addEventListener('click', () => showScreen('quiz-screen'));
-            createTableSelection(learnTableSelection, selectForLearn);
-            createTableSelection(quizTableSelection, selectForQuiz, true);
-            createNumberPad(numberPad, handleQuizNumberClick, handleQuizClearClick);
-            checkBtn.addEventListener('click', checkQuizAnswer);
-        }
+        function initQuiz() { goToLearnBtn.addEventListener('click', () => showScreen('learn-screen')); goToQuizBtn.addEventListener('click', () => showScreen('quiz-screen')); createTableSelection(learnTableSelection, selectForLearn); createTableSelection(quizTableSelection, selectForQuiz, true); createNumberPad(numberPad, handleQuizNumberClick, handleQuizClearClick); checkBtn.addEventListener('click', checkQuizAnswer); }
         initQuiz();
 
-        // --- SNAKE GAME LOGIC ---
+        // --- NEW SNAKE GAME LOGIC ---
         const goToSnakeBtn = document.getElementById('go-to-snake');
         const canvas = document.getElementById('snake-canvas');
         const ctx = canvas.getContext('2d');
         const canvasContainer = document.getElementById('canvas-container');
-        const foodLabel = document.getElementById('food-label');
         const snakeScoreEl = document.getElementById('snake-score');
-        const snakeQuestionEl = document.getElementById('snake-question');
-        const snakeAnswerBox = document.getElementById('snake-answer-box');
-        const snakeSelectedAnswerDisplay = document.getElementById('snake-selected-answer-display');
-        const snakeNumberPad = document.getElementById('snake-number-pad');
-        const snakeCheckBtn = document.getElementById('snake-check-btn');
+        const snakeQuestionDisplay = document.getElementById('snake-question-display');
         const gameOverScreen = document.getElementById('game-over-screen');
         const finalScoreEl = document.getElementById('final-score');
         const restartSnakeBtn = document.getElementById('restart-snake-btn');
+        
+        // New controls
+        const tensRow = document.getElementById('tens-row');
+        const unitsRow = document.getElementById('units-row');
+        const snakeSubmitBtn = document.getElementById('snake-submit-btn');
+        const snakeAnswerDisplay = document.getElementById('snake-answer-display');
+        let selectedTens = 0;
+        let selectedUnits = 0;
 
-        let snake, food, snakeScore, cols, rows, cellSize;
+        let snake, food, snakeScore, cols, rows, cellSize, currentAnswer;
         let path, currentPathIndex, snakeAnimationTimeout;
-        let snakeSelectedAnswerString = '';
         let snakeGameOver = false;
         let isMoving = false;
         let animationFrameId;
-
-        let isFoodFlashing = false, flashState = true, lastFlashTime = 0;
-
-        const baseGrid = { cols: 16, rows: 9 };
-        const levelThresholds = { 5: { cols: 20, rows: 12 }, 10: { cols: 24, rows: 15 }, 15: { cols: 28, rows: 18 }};
+        let isWarmupPhase = false;
+        
+        let foodTimer;
+        const FOOD_BASE_LIFESPAN = 25000; // 25s for snake of length 1
+        let flashState = true, lastFlashTime = 0;
+        
+        const levelThresholds = { 5: 1.2, 10: 1.4, 15: 1.6 }; // Grid size multipliers
 
         function resizeCanvas() {
             const containerWidth = canvasContainer.clientWidth;
+            const containerHeight = canvasContainer.clientHeight;
+            
+            if (containerWidth === 0 || containerHeight === 0) return;
+
+            const isPortrait = containerHeight > containerWidth;
+
+            let baseCols = isPortrait ? 9 : 16;
+            let baseRows = isPortrait ? 16 : 9;
+            
+            let multiplier = 1;
+            for(const score in levelThresholds){
+                if(snakeScore >= score) multiplier = levelThresholds[score];
+            }
+            
+            cols = Math.floor(baseCols * multiplier);
+            rows = Math.floor(baseRows * multiplier);
+
             const aspectRatio = cols / rows;
+            
             canvas.width = containerWidth;
             canvas.height = containerWidth / aspectRatio;
-            if (canvas.height > canvasContainer.clientHeight) {
-                canvas.height = canvasContainer.clientHeight;
+
+            if (canvas.height > containerHeight) {
+                canvas.height = containerHeight;
                 canvas.width = canvas.height * aspectRatio;
             }
-            cellSize = canvas.width / cols;
-            updateFoodLabel();
-        }
+            
+            canvas.style.width = `${canvas.width}px`;
+            canvas.style.height = `${canvas.height}px`;
+            canvas.style.position = 'absolute';
+            canvas.style.left = `${(containerWidth - canvas.width) / 2}px`;
+            canvas.style.top = `${(containerHeight - canvas.height) / 2}px`;
 
-        function getGridSizeForScore(score) {
-            let currentGrid = { ...baseGrid };
-            for (const threshold in levelThresholds) {
-                if (score >= threshold) {
-                    currentGrid = levelThresholds[threshold];
-                }
-            }
-            return currentGrid;
+            cellSize = canvas.width / cols;
+        }
+        
+        function resetNumberSelectors() {
+            selectedTens = 0;
+            selectedUnits = 0;
+            
+            const activeTens = tensRow.querySelector('.active');
+            if(activeTens) activeTens.classList.remove('active');
+            const newActiveTens = tensRow.querySelector('[data-value="0"]');
+            if(newActiveTens) newActiveTens.classList.add('active');
+            
+            const activeUnits = unitsRow.querySelector('.active');
+            if(activeUnits) activeUnits.classList.remove('active');
+            const newActiveUnits = unitsRow.querySelector('[data-value="0"]');
+            if(newActiveUnits) newActiveUnits.classList.add('active');
+            
+            updateSelectedAnswer();
         }
 
         function startSnakeGame() {
             gameOverScreen.style.display = 'none';
-            foodLabel.classList.add('hidden');
             snakeGameOver = false;
             snakeScore = 0;
-            const grid = getGridSizeForScore(snakeScore);
-            cols = grid.cols;
-            rows = grid.rows;
-
-            snake = [{ x: 2, y: 0 }, { x: 1, y: 0 }, { x: 0, y: 0 }];
-            snake.pop(); // Start with length 2
             path = null;
+            isWarmupPhase = true; // Set warmup phase
+
+            resizeCanvas(); // Resize once at the beginning
+
+            // Start with a 1-cell snake in the middle
+            snake = [{ x: Math.floor(cols / 2), y: Math.floor(rows / 2) }];
             
             updateSnakeScore();
-            generateFood();
-            resizeCanvas();
+            resetNumberSelectors();
+            
+            // Create free food
+            const foodX = Math.min(cols - 1, snake[0].x + 2);
+            const foodY = snake[0].y;
+            food = { x: foodX, y: foodY };
+            snakeQuestionDisplay.textContent = 'Sẵn sàng!';
+
+            // Start the game loop for drawing
             if (animationFrameId) cancelAnimationFrame(animationFrameId);
             gameLoop();
+
+            // Trigger the movement automatically after a pause
+            isMoving = true; // Lock controls
+            path = findShortestPath(snake[0], food);
+            currentPathIndex = 0;
+            setTimeout(moveSnake, 500); // Give user time to see
         }
         
         function stopSnakeGame() {
             snakeGameOver = true;
+            clearTimeout(foodTimer);
+            clearTimeout(snakeAnimationTimeout);
             if (animationFrameId) {
                 cancelAnimationFrame(animationFrameId);
                 animationFrameId = null;
@@ -390,55 +375,39 @@
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             // Draw snake
             snake.forEach((part, index) => {
-                ctx.fillStyle = index === 0 ? '#16a34a' : '#4ade80'; // Darker green for head
+                ctx.fillStyle = index === 0 ? '#16a34a' : '#4ade80';
                 ctx.fillRect(part.x * cellSize, part.y * cellSize, cellSize, cellSize);
                 ctx.strokeStyle = '#f0fdf4';
                 ctx.strokeRect(part.x * cellSize, part.y * cellSize, cellSize, cellSize);
             });
             
-            // Draw flashing food target if snake is moving towards it
-            if (isFoodFlashing && food) {
+            // Draw fading, flashing food target
+            if (food && !isMoving) {
+                const elapsed = Date.now() - food.createdAt;
+                const opacity = Math.max(0, 1 - (elapsed / food.lifespan));
+
                 const now = Date.now();
-                if (now - lastFlashTime > 150) { // Flash speed
+                if (now - lastFlashTime > 150) {
                     flashState = !flashState;
                     lastFlashTime = now;
                 }
                 if (flashState) {
-                    ctx.fillStyle = 'rgba(249, 115, 22, 0.8)'; // Orange flash
+                    ctx.fillStyle = `rgba(249, 115, 22, ${opacity})`;
                     ctx.fillRect(food.x * cellSize, food.y * cellSize, cellSize, cellSize);
-                    ctx.strokeStyle = '#fefce8';
-                    ctx.lineWidth = 2;
-                    ctx.strokeRect(food.x * cellSize + 1, food.y * cellSize + 1, cellSize - 2, cellSize - 2);
                 }
+            } else if (food && isMoving) { // Draw solid target when moving towards it
+                 ctx.fillStyle = 'rgba(249, 115, 22, 0.8)';
+                 ctx.fillRect(food.x * cellSize, food.y * cellSize, cellSize, cellSize);
             }
         }
         
-        function updateFoodLabel() {
-            if (food && !snakeGameOver && !isMoving) { // Only show label when not moving
-                foodLabel.textContent = `${food.num1}x${food.num2}`;
-                foodLabel.style.width = `${cellSize}px`;
-                foodLabel.style.height = `${cellSize}px`;
-                foodLabel.style.left = `${food.x * cellSize}px`;
-                foodLabel.style.top = `${food.y * cellSize}px`;
-                
-                const baseCellSize = canvas.width / baseGrid.cols;
-                const targetFontSize = Math.max(16, baseCellSize * 0.65); 
-                const finalFontSize = Math.min(targetFontSize, cellSize * 0.9);
-                
-                foodLabel.style.fontSize = `${finalFontSize}px`;
-                
-                foodLabel.classList.remove('hidden');
-            } else {
-                foodLabel.classList.add('hidden');
-            }
-        }
-
         function isPositionOnSnake(x, y, ignoreHead = false) {
             const snakeParts = ignoreHead ? snake.slice(1) : snake;
             return snakeParts.some(part => part.x === x && part.y === y);
         }
 
         function generateFood() {
+            clearTimeout(foodTimer);
             let foodX, foodY;
             do {
                 foodX = Math.floor(Math.random() * cols);
@@ -447,184 +416,152 @@
             
             const num1 = Math.floor(Math.random() * 9) + 2;
             const num2 = Math.floor(Math.random() * 10) + 1;
+            const lifespan = Math.max(8000, FOOD_BASE_LIFESPAN - (snake.length * 250));
             
-            food = { x: foodX, y: foodY, num1: num1, num2: num2, answer: num1 * num2 };
-            snakeQuestionEl.textContent = `${num1} x ${num2} = ?`;
-            handleSnakeClearClick();
-            toggleSnakeNumberPad(true);
-            updateFoodLabel();
+            food = { x: foodX, y: foodY, num1, num2, answer: num1 * num2, createdAt: Date.now(), lifespan };
+            snakeQuestionDisplay.textContent = `${num1} x ${num2} = ?`;
+            
+            foodTimer = setTimeout(handleFoodTimeout, lifespan);
+            resetNumberSelectors();
         }
-        
-        function handleSnakeNumberClick(digit) { if (snakeSelectedAnswerString.length < 3 && !isMoving) { snakeSelectedAnswerString += digit; updateSnakeAnswerDisplay(); } }
-        function handleSnakeClearClick() { snakeSelectedAnswerString = ''; updateSnakeAnswerDisplay(); }
-        function updateSnakeAnswerDisplay() { snakeSelectedAnswerDisplay.innerHTML = snakeSelectedAnswerString === '' ? '&nbsp;' : snakeSelectedAnswerString; snakeCheckBtn.disabled = snakeSelectedAnswerString === ''; }
-        function toggleSnakeNumberPad(enabled) { snakeNumberPad.querySelectorAll('.number-pad-btn').forEach(btn => btn.disabled = !enabled); snakeCheckBtn.disabled = !enabled || snakeSelectedAnswerString === ''; }
-        
-        function isPathSafe(pathToFollow) {
-            const tempSnake = snake.map(p => ({...p})); // Create a copy to simulate on
 
-            for (let i = 0; i < pathToFollow.length; i++) {
-                const nextHeadPos = pathToFollow[i];
-
-                // Check if the next head position collides with the body.
-                // The head is allowed to move into the last segment of the tail, as that segment will move away.
-                const body = tempSnake.slice(0, tempSnake.length - 1); 
-                if (body.some(part => part.x === nextHeadPos.x && part.y === nextHeadPos.y)) {
-                    return false; // Path leads to collision
-                }
-
-                // Simulate the move
-                tempSnake.unshift({ ...nextHeadPos }); // Add new head
-                if (i < pathToFollow.length - 1) {
-                    // Not the final step (eating), so tail moves
-                    tempSnake.pop();
-                }
+        function handleFoodTimeout() {
+            snake.pop();
+            snakeScore = Math.max(0, snakeScore - 1);
+            updateSnakeScore();
+            if (snake.length < 1) {
+                gameOver();
+            } else {
+                generateFood();
             }
-
-            return true; // Path is safe
         }
         
-        function checkSnakeAnswer() {
-            if (isMoving || snakeSelectedAnswerString === '') return;
-            const userAnswer = parseInt(snakeSelectedAnswerString);
-            
-            toggleSnakeNumberPad(false);
+        function updateSelectedAnswer() {
+            currentAnswer = selectedTens * 10 + selectedUnits;
+            snakeAnswerDisplay.textContent = currentAnswer;
+        }
 
+        function createNumberRows() {
+            tensRow.innerHTML = '<span class="font-bold text-gray-600 w-12 text-right text-sm flex-shrink-0">Chục</span>';
+            for (let i = 0; i <= 10; i++) {
+                const btn = document.createElement('button');
+                btn.textContent = i;
+                btn.dataset.value = i;
+                btn.className = 'number-row-btn flex-shrink-0 w-10 h-10 font-bold bg-white/70 rounded-md shadow-sm border border-gray-300';
+                if (i === 0) btn.classList.add('active');
+                btn.addEventListener('click', () => {
+                    tensRow.querySelector('.active').classList.remove('active');
+                    btn.classList.add('active');
+                    selectedTens = i;
+                    updateSelectedAnswer();
+                });
+                tensRow.appendChild(btn);
+            }
+            unitsRow.innerHTML = '<span class="font-bold text-gray-600 w-12 text-right text-sm flex-shrink-0">Đơn vị</span>';
+            for (let i = 0; i <= 9; i++) {
+                const btn = document.createElement('button');
+                btn.textContent = i;
+                btn.dataset.value = i;
+                btn.className = 'number-row-btn flex-shrink-0 w-10 h-10 font-bold bg-white/70 rounded-md shadow-sm border border-gray-300';
+                 if (i === 0) btn.classList.add('active');
+                btn.addEventListener('click', () => {
+                    unitsRow.querySelector('.active').classList.remove('active');
+                    btn.classList.add('active');
+                    selectedUnits = i;
+                    updateSelectedAnswer();
+                });
+                unitsRow.appendChild(btn);
+            }
+        }
+
+        function checkSnakeAnswer() {
+            if (isMoving || isWarmupPhase) return;
+            const userAnswer = currentAnswer;
+            
             if (userAnswer === food.answer) {
-                foodLabel.classList.add('hidden');
-                snakeAnswerBox.classList.add('flash-green');
+                clearTimeout(foodTimer);
                 path = findShortestPath(snake[0], food);
                 if (path && isPathSafe(path)) {
-                    isFoodFlashing = true;
-                    lastFlashTime = Date.now();
-                    flashState = true;
                     isMoving = true;
                     currentPathIndex = 0;
                     moveSnake();
-                } else { // No path found! Expand the grid as a reward.
-                    isFoodFlashing = false; // Ensure flashing is off
-                    let currentKey = 0;
-                    for (const key in levelThresholds) {
-                        if (levelThresholds[key].cols === cols) {
-                            currentKey = parseInt(key);
-                            break;
-                        }
-                    }
-                    const sortedKeys = Object.keys(levelThresholds).map(Number).sort((a, b) => a - b);
-                    const nextLevelKey = sortedKeys.find(key => key > currentKey);
-
-                    if (nextLevelKey) {
-                        const newGrid = levelThresholds[nextLevelKey];
-                        cols = newGrid.cols;
-                        rows = newGrid.rows;
-                        resizeCanvas();
-                        
-                        // Reward player: move snake head to food & grow
-                        snake.unshift({x: food.x, y: food.y}); 
-                        snakeScore++;
-                        updateSnakeScore();
-                        generateFood(); // Generate new food in the bigger grid
-                    } else {
-                        // At max size, can't expand. Just generate new food.
-                        generateFood();
-                    }
-                }
-                 setTimeout(() => {
-                    snakeAnswerBox.classList.remove('flash-green');
-                }, 800);
-            } else { // Wrong answer - New Logic
-                snakeAnswerBox.classList.add('flash-red');
-                snake.pop(); // Shorten snake
-                snakeScore = Math.max(0, snakeScore - 1); // Decrease score, not below 0
-                updateSnakeScore();
-
-                if (snake.length < 1) {
-                    gameOver();
                 } else {
-                   // Allow user to try again on the same question
-                   setTimeout(() => {
-                        snakeAnswerBox.classList.remove('flash-red');
-                        handleSnakeClearClick();
-                        toggleSnakeNumberPad(true);
-                   }, 800);
+                    // No path found! Reward by moving to food and creating new food.
+                    snake.unshift({x: food.x, y: food.y}); 
+                    snakeScore++;
+                    updateSnakeScore();
+                    resizeCanvas();
+                    generateFood();
                 }
+            } else { // Wrong answer
+                snake.pop();
+                snakeScore = Math.max(0, snakeScore - 1);
+                updateSnakeScore();
+                if (snake.length < 1) gameOver();
             }
         }
         
+        function isPathSafe(pathToFollow) {
+            const tempSnake = snake.map(p => ({...p}));
+            for (let i = 0; i < pathToFollow.length; i++) {
+                const nextHeadPos = pathToFollow[i];
+                const body = tempSnake.slice(0, tempSnake.length - 1); 
+                if (body.some(part => part.x === nextHeadPos.x && part.y === nextHeadPos.y)) {
+                    return false;
+                }
+                tempSnake.unshift({ ...nextHeadPos });
+                if (i < pathToFollow.length - 1) tempSnake.pop();
+            }
+            return true;
+        }
+
         function moveSnake() {
             if (!path || currentPathIndex >= path.length) {
-                // Reached destination
-                isFoodFlashing = false;
-                isMoving = false;
-                snakeScore++;
-                updateSnakeScore();
-                // Check for level up
-                const newGrid = getGridSizeForScore(snakeScore);
-                if (newGrid.cols !== cols) {
-                    cols = newGrid.cols;
-                    rows = newGrid.rows;
+                if (isWarmupPhase) {
+                    isWarmupPhase = false;
+                    isMoving = false;
+                    generateFood(); // Generate first real food
+                } else {
+                    isMoving = false;
+                    snakeScore++;
+                    updateSnakeScore();
                     resizeCanvas();
+                    generateFood();
                 }
-                generateFood();
                 return;
             }
-
             const nextStep = path[currentPathIndex];
-            const newHead = { x: nextStep.x, y: nextStep.y };
-
-            // Check for self-collision before moving
-            if (isPositionOnSnake(newHead.x, newHead.y, true)) {
-                 gameOver();
-                 return;
-            }
-
-            snake.unshift(newHead); // Add new head
-
-            // If it's the last step, don't pop tail (grow)
-            // Otherwise, pop tail to move
+            snake.unshift({ x: nextStep.x, y: nextStep.y });
             if (currentPathIndex < path.length - 1) {
                 snake.pop();
             }
-
             currentPathIndex++;
-            snakeAnimationTimeout = setTimeout(moveSnake, 100);
+            snakeAnimationTimeout = setTimeout(moveSnake, 80);
         }
 
         function findShortestPath(start, end) {
             const queue = [[start]];
             const visited = new Set([`${start.x},${start.y}`]);
-            
             while (queue.length > 0) {
                 const path = queue.shift();
                 const pos = path[path.length - 1];
-
-                if (pos.x === end.x && pos.y === end.y) {
-                    return path.slice(1); // Return path without the start node
-                }
-
+                if (pos.x === end.x && pos.y === end.y) return path.slice(1);
                 const directions = [[0, 1], [0, -1], [1, 0], [-1, 0]];
                 for (const [dx, dy] of directions) {
-                    const nextX = pos.x + dx;
-                    const nextY = pos.y + dy;
-
+                    const nextX = pos.x + dx, nextY = pos.y + dy;
                     if (nextX >= 0 && nextX < cols && nextY >= 0 && nextY < rows && !visited.has(`${nextX},${nextY}`) && !isPositionOnSnake(nextX, nextY, true)) {
                         visited.add(`${nextX},${nextY}`);
-                        const newPath = [...path, {x: nextX, y: nextY}];
-                        queue.push(newPath);
+                        queue.push([...path, {x: nextX, y: nextY}]);
                     }
                 }
             }
-            return null; // No path found
+            return null;
         }
         
         function updateSnakeScore() { snakeScoreEl.textContent = `Điểm: ${snakeScore}`; }
 
         function gameOver() {
-            snakeGameOver = true;
-            isMoving = false;
-            isFoodFlashing = false;
-            clearTimeout(snakeAnimationTimeout);
-            foodLabel.classList.add('hidden');
+            stopSnakeGame();
             finalScoreEl.textContent = snakeScore;
             gameOverScreen.style.display = 'flex';
         }
@@ -632,16 +569,16 @@
         function initSnakeGame() {
             goToSnakeBtn.addEventListener('click', () => {
                 showScreen('snake-game-screen');
-                startSnakeGame();
+                // Use a timeout to ensure the container has resized before the game starts
+                setTimeout(startSnakeGame, 50);
             });
-            const snakeNumberPadContainer = document.getElementById('snake-number-pad');
-            createNumberPad(snakeNumberPadContainer, handleSnakeNumberClick, handleSnakeClearClick);
-            snakeCheckBtn.addEventListener('click', checkSnakeAnswer);
+            createNumberRows();
+            snakeSubmitBtn.addEventListener('click', checkSnakeAnswer);
             restartSnakeBtn.addEventListener('click', startSnakeGame);
             window.addEventListener('resize', resizeCanvas);
+            updateSelectedAnswer();
         }
         initSnakeGame();
-
     </script>
 </body>
 </html>
