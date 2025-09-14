@@ -55,15 +55,9 @@
             border-radius: 8px;
             border: 2px solid #86efac;
         }
-        .number-row-btn {
+        .snake-control-btn {
             transition: all 0.2s ease-in-out;
-        }
-        .number-row-btn.active {
-            background-color: #4f46e5;
-            color: white;
-            transform: scale(1.1);
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            border-color: #4f46e5;
+             touch-action: manipulation;
         }
     </style>
 </head>
@@ -131,35 +125,36 @@
         
         <!-- Snake Game Screen -->
         <div id="snake-game-screen" class="screen !justify-start h-full">
-            <div class="flex justify-between items-center w-full p-2 bg-white/30 backdrop-blur-sm">
-                <button class="back-btn font-bold text-indigo-600 hover:text-indigo-800 self-start p-2 rounded-lg bg-white/50">&larr; Quay về</button>
-                <h2 id="snake-question-display" class="text-3xl md:text-5xl font-bold text-orange-600">3 x 4 = ?</h2>
-                <div id="snake-score" class="text-xl md:text-3xl text-green-800 font-bold bg-white/50 px-4 py-2 rounded-lg shadow-inner">Điểm: 0</div>
-            </div>
             <div id="canvas-container" class="relative w-full flex-grow bg-gray-800">
                 <canvas id="snake-canvas"></canvas>
+                <button class="back-btn absolute top-2 left-2 z-20 p-2 rounded-full bg-black/30 text-white hover:bg-black/50 transition">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                    </svg>
+                </button>
                 <div id="game-over-screen" class="absolute inset-0 bg-black/70 text-white text-center flex-col justify-center items-center rounded-lg hidden">
                     <h3 class="text-5xl font-extrabold">Thua Rồi!</h3>
                     <p class="text-2xl mt-2">Điểm của bạn: <span id="final-score">0</span></p>
                     <button id="restart-snake-btn" class="mt-6 bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-8 rounded-lg text-xl">Chơi Lại</button>
                 </div>
             </div>
-            <div id="snake-controls" class="w-full p-2 md:p-4 bg-white/50 backdrop-blur-sm">
-                <div class="flex justify-center items-center gap-2 md:gap-4">
-                    <div class="flex flex-col gap-1">
-                        <div id="tens-row" class="flex items-center gap-1 overflow-x-auto">
-                            <span class="font-bold text-gray-600 w-12 text-right text-sm flex-shrink-0">Chục</span>
-                            <!-- JS will populate this -->
-                        </div>
-                        <div id="units-row" class="flex items-center gap-1 overflow-x-auto">
-                             <span class="font-bold text-gray-600 w-12 text-right text-sm flex-shrink-0">Đơn vị</span>
-                            <!-- JS will populate this -->
-                        </div>
-                    </div>
-                    <div id="snake-submit-btn" class="flex-shrink-0 w-20 h-20 md:w-24 md:h-24 bg-green-500 rounded-full flex items-center justify-center text-white text-3xl md:text-4xl font-bold shadow-lg cursor-pointer transform transition hover:scale-110 active:scale-95">
-                        <span id="snake-answer-display">0</span>
-                    </div>
+            <div id="snake-controls" class="w-full p-2 bg-white/50 backdrop-blur-sm flex justify-center items-center gap-2">
+                 <div id="snake-answer-display-container" class="bg-white/80 rounded-lg text-3xl font-bold text-gray-800 w-24 h-14 flex items-center justify-center shadow-inner">
+                    <span id="snake-answer-display"></span>
                 </div>
+                <div id="snake-input-pad" class="grid grid-cols-5 gap-2">
+                    <!-- JS will populate 0-9 -->
+                </div>
+                <button id="snake-clear-btn" class="snake-control-btn w-14 h-14 bg-red-500 text-white rounded-lg flex items-center justify-center shadow-md active:bg-red-600">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                         <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+                 <button id="snake-submit-btn" class="snake-control-btn w-14 h-14 bg-green-500 text-white rounded-lg flex items-center justify-center shadow-md active:bg-green-600">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                    </svg>
+                </button>
             </div>
         </div>
     </div>
@@ -241,21 +236,18 @@
         const canvas = document.getElementById('snake-canvas');
         const ctx = canvas.getContext('2d');
         const canvasContainer = document.getElementById('canvas-container');
-        const snakeScoreEl = document.getElementById('snake-score');
-        const snakeQuestionDisplay = document.getElementById('snake-question-display');
         const gameOverScreen = document.getElementById('game-over-screen');
         const finalScoreEl = document.getElementById('final-score');
         const restartSnakeBtn = document.getElementById('restart-snake-btn');
         
         // New controls
-        const tensRow = document.getElementById('tens-row');
-        const unitsRow = document.getElementById('units-row');
+        const snakeInputPad = document.getElementById('snake-input-pad');
         const snakeSubmitBtn = document.getElementById('snake-submit-btn');
+        const snakeClearBtn = document.getElementById('snake-clear-btn');
         const snakeAnswerDisplay = document.getElementById('snake-answer-display');
-        let selectedTens = 0;
-        let selectedUnits = 0;
+        let snakeInputString = '';
 
-        let snake, food, snakeScore, cols, rows, cellSize, currentAnswer;
+        let snake, food, snakeScore, cols, rows, cellSize;
         let path, currentPathIndex, snakeAnimationTimeout;
         let snakeGameOver = false;
         let isMoving = false;
@@ -305,54 +297,31 @@
 
             cellSize = canvas.width / cols;
         }
-        
-        function resetNumberSelectors() {
-            selectedTens = 0;
-            selectedUnits = 0;
-            
-            const activeTens = tensRow.querySelector('.active');
-            if(activeTens) activeTens.classList.remove('active');
-            const newActiveTens = tensRow.querySelector('[data-value="0"]');
-            if(newActiveTens) newActiveTens.classList.add('active');
-            
-            const activeUnits = unitsRow.querySelector('.active');
-            if(activeUnits) activeUnits.classList.remove('active');
-            const newActiveUnits = unitsRow.querySelector('[data-value="0"]');
-            if(newActiveUnits) newActiveUnits.classList.add('active');
-            
-            updateSelectedAnswer();
-        }
 
         function startSnakeGame() {
             gameOverScreen.style.display = 'none';
             snakeGameOver = false;
             snakeScore = 0;
             path = null;
-            isWarmupPhase = true; // Set warmup phase
+            isWarmupPhase = true; 
 
-            resizeCanvas(); // Resize once at the beginning
+            resizeCanvas(); 
 
-            // Start with a 1-cell snake in the middle
             snake = [{ x: Math.floor(cols / 2), y: Math.floor(rows / 2) }];
             
-            updateSnakeScore();
-            resetNumberSelectors();
+            handleClearInput();
             
-            // Create free food
             const foodX = Math.min(cols - 1, snake[0].x + 2);
             const foodY = snake[0].y;
-            food = { x: foodX, y: foodY };
-            snakeQuestionDisplay.textContent = 'Sẵn sàng!';
-
-            // Start the game loop for drawing
+            food = { x: foodX, y: foodY, isWarmup: true };
+            
             if (animationFrameId) cancelAnimationFrame(animationFrameId);
             gameLoop();
 
-            // Trigger the movement automatically after a pause
-            isMoving = true; // Lock controls
+            isMoving = true; 
             path = findShortestPath(snake[0], food);
             currentPathIndex = 0;
-            setTimeout(moveSnake, 500); // Give user time to see
+            setTimeout(moveSnake, 500); 
         }
         
         function stopSnakeGame() {
@@ -381,23 +350,38 @@
                 ctx.strokeRect(part.x * cellSize, part.y * cellSize, cellSize, cellSize);
             });
             
-            // Draw fading, flashing food target
-            if (food && !isMoving) {
-                const elapsed = Date.now() - food.createdAt;
-                const opacity = Math.max(0, 1 - (elapsed / food.lifespan));
+            // Draw food
+            if (food) {
+                let opacity = 1;
+                let drawText = !food.isWarmup;
+                
+                if (!isMoving && !food.isWarmup) {
+                    const elapsed = Date.now() - food.createdAt;
+                    opacity = Math.max(0.2, 1 - (elapsed / food.lifespan));
 
-                const now = Date.now();
-                if (now - lastFlashTime > 150) {
-                    flashState = !flashState;
-                    lastFlashTime = now;
+                    const now = Date.now();
+                    if (now - lastFlashTime > 150) {
+                        flashState = !flashState;
+                        lastFlashTime = now;
+                    }
+                } else {
+                    flashState = true;
                 }
+
                 if (flashState) {
                     ctx.fillStyle = `rgba(249, 115, 22, ${opacity})`;
                     ctx.fillRect(food.x * cellSize, food.y * cellSize, cellSize, cellSize);
+
+                    if (drawText) {
+                        const text = `${food.num1} x ${food.num2}`;
+                        const fontSize = Math.max(14, cellSize * 0.45);
+                        ctx.font = `bold ${fontSize}px 'Baloo 2'`;
+                        ctx.fillStyle = 'black';
+                        ctx.textAlign = 'center';
+                        ctx.textBaseline = 'middle';
+                        ctx.fillText(text, food.x * cellSize + cellSize / 2, food.y * cellSize + cellSize / 2);
+                    }
                 }
-            } else if (food && isMoving) { // Draw solid target when moving towards it
-                 ctx.fillStyle = 'rgba(249, 115, 22, 0.8)';
-                 ctx.fillRect(food.x * cellSize, food.y * cellSize, cellSize, cellSize);
             }
         }
         
@@ -418,17 +402,14 @@
             const num2 = Math.floor(Math.random() * 10) + 1;
             const lifespan = Math.max(8000, FOOD_BASE_LIFESPAN - (snake.length * 250));
             
-            food = { x: foodX, y: foodY, num1, num2, answer: num1 * num2, createdAt: Date.now(), lifespan };
-            snakeQuestionDisplay.textContent = `${num1} x ${num2} = ?`;
+            food = { x: foodX, y: foodY, num1, num2, answer: num1 * num2, createdAt: Date.now(), lifespan, isWarmup: false };
             
             foodTimer = setTimeout(handleFoodTimeout, lifespan);
-            resetNumberSelectors();
+            handleClearInput();
         }
 
         function handleFoodTimeout() {
             snake.pop();
-            snakeScore = Math.max(0, snakeScore - 1);
-            updateSnakeScore();
             if (snake.length < 1) {
                 gameOver();
             } else {
@@ -436,47 +417,37 @@
             }
         }
         
-        function updateSelectedAnswer() {
-            currentAnswer = selectedTens * 10 + selectedUnits;
-            snakeAnswerDisplay.textContent = currentAnswer;
+        function updateAnswerDisplay() {
+            snakeAnswerDisplay.textContent = snakeInputString || '';
         }
 
-        function createNumberRows() {
-            tensRow.innerHTML = '<span class="font-bold text-gray-600 w-12 text-right text-sm flex-shrink-0">Chục</span>';
-            for (let i = 0; i <= 10; i++) {
-                const btn = document.createElement('button');
-                btn.textContent = i;
-                btn.dataset.value = i;
-                btn.className = 'number-row-btn flex-shrink-0 w-10 h-10 font-bold bg-white/70 rounded-md shadow-sm border border-gray-300';
-                if (i === 0) btn.classList.add('active');
-                btn.addEventListener('click', () => {
-                    tensRow.querySelector('.active').classList.remove('active');
-                    btn.classList.add('active');
-                    selectedTens = i;
-                    updateSelectedAnswer();
-                });
-                tensRow.appendChild(btn);
+        function handleNumberInput(digit) {
+            if (snakeInputString.length < 3) {
+                snakeInputString += digit;
+                updateAnswerDisplay();
             }
-            unitsRow.innerHTML = '<span class="font-bold text-gray-600 w-12 text-right text-sm flex-shrink-0">Đơn vị</span>';
-            for (let i = 0; i <= 9; i++) {
+        }
+
+        function handleClearInput() {
+            snakeInputString = '';
+            updateAnswerDisplay();
+        }
+
+        function createSnakeInputControls() {
+            snakeInputPad.innerHTML = '';
+            for (let i = 1; i <= 10; i++) {
+                const digit = i % 10;
                 const btn = document.createElement('button');
-                btn.textContent = i;
-                btn.dataset.value = i;
-                btn.className = 'number-row-btn flex-shrink-0 w-10 h-10 font-bold bg-white/70 rounded-md shadow-sm border border-gray-300';
-                 if (i === 0) btn.classList.add('active');
-                btn.addEventListener('click', () => {
-                    unitsRow.querySelector('.active').classList.remove('active');
-                    btn.classList.add('active');
-                    selectedUnits = i;
-                    updateSelectedAnswer();
-                });
-                unitsRow.appendChild(btn);
+                btn.textContent = digit;
+                btn.className = 'snake-control-btn w-14 h-14 bg-white/80 text-2xl font-bold text-gray-800 rounded-lg shadow-md active:bg-gray-200';
+                btn.addEventListener('click', () => handleNumberInput(digit));
+                snakeInputPad.appendChild(btn);
             }
         }
 
         function checkSnakeAnswer() {
-            if (isMoving || isWarmupPhase) return;
-            const userAnswer = currentAnswer;
+            if (isMoving || isWarmupPhase || snakeInputString === '') return;
+            const userAnswer = parseInt(snakeInputString);
             
             if (userAnswer === food.answer) {
                 clearTimeout(foodTimer);
@@ -486,17 +457,13 @@
                     currentPathIndex = 0;
                     moveSnake();
                 } else {
-                    // No path found! Reward by moving to food and creating new food.
                     snake.unshift({x: food.x, y: food.y}); 
                     snakeScore++;
-                    updateSnakeScore();
                     resizeCanvas();
                     generateFood();
                 }
-            } else { // Wrong answer
+            } else { 
                 snake.pop();
-                snakeScore = Math.max(0, snakeScore - 1);
-                updateSnakeScore();
                 if (snake.length < 1) gameOver();
             }
         }
@@ -520,11 +487,10 @@
                 if (isWarmupPhase) {
                     isWarmupPhase = false;
                     isMoving = false;
-                    generateFood(); // Generate first real food
+                    generateFood(); 
                 } else {
                     isMoving = false;
                     snakeScore++;
-                    updateSnakeScore();
                     resizeCanvas();
                     generateFood();
                 }
@@ -532,7 +498,7 @@
             }
             const nextStep = path[currentPathIndex];
             snake.unshift({ x: nextStep.x, y: nextStep.y });
-            if (currentPathIndex < path.length - 1) {
+            if (currentPathIndex < path.length - 1 || isWarmupPhase) {
                 snake.pop();
             }
             currentPathIndex++;
@@ -558,8 +524,6 @@
             return null;
         }
         
-        function updateSnakeScore() { snakeScoreEl.textContent = `Điểm: ${snakeScore}`; }
-
         function gameOver() {
             stopSnakeGame();
             finalScoreEl.textContent = snakeScore;
@@ -569,14 +533,13 @@
         function initSnakeGame() {
             goToSnakeBtn.addEventListener('click', () => {
                 showScreen('snake-game-screen');
-                // Use a timeout to ensure the container has resized before the game starts
-                setTimeout(startSnakeGame, 50);
+                requestAnimationFrame(startSnakeGame);
             });
-            createNumberRows();
+            createSnakeInputControls();
             snakeSubmitBtn.addEventListener('click', checkSnakeAnswer);
+            snakeClearBtn.addEventListener('click', handleClearInput);
             restartSnakeBtn.addEventListener('click', startSnakeGame);
             window.addEventListener('resize', resizeCanvas);
-            updateSelectedAnswer();
         }
         initSnakeGame();
     </script>
