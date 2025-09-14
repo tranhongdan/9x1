@@ -142,6 +142,7 @@
                 <div id="snake-input-pad" class="grid grid-cols-5 gap-2">
                     <!-- JS will populate 0-9 -->
                 </div>
+                <div class="w-px bg-gray-300 self-stretch mx-2"></div>
                 <div class="flex flex-col gap-2">
                     <div id="snake-answer-display-container" class="bg-white/80 rounded-lg text-3xl font-bold text-gray-800 h-14 flex items-center justify-center shadow-inner">
                         <span id="snake-answer-display"></span>
@@ -257,13 +258,12 @@
         let isMoving = false;
         let animationFrameId;
         let isWarmupPhase = false;
+        let gridExpansionLevel = 0;
         
         let foodTimer;
-        const FOOD_BASE_LIFESPAN = 25000; // 25s for snake of length 1
+        const FOOD_BASE_LIFESPAN = 25000;
         let flashState = true, lastFlashTime = 0;
         
-        const levelThresholds = { 5: 1.2, 10: 1.4, 15: 1.6 }; // Grid size multipliers
-
         function resizeCanvas() {
             const containerWidth = canvasContainer.clientWidth;
             const containerHeight = canvasContainer.clientHeight;
@@ -275,10 +275,7 @@
             let baseCols = isPortrait ? 9 : 16;
             let baseRows = isPortrait ? 16 : 9;
             
-            let multiplier = 1;
-            for(const score in levelThresholds){
-                if(snakeScore >= score) multiplier = levelThresholds[score];
-            }
+            let multiplier = 1 + gridExpansionLevel * 0.1;
             
             cols = Math.floor(baseCols * multiplier);
             rows = Math.floor(baseRows * multiplier);
@@ -308,6 +305,7 @@
             snakeScore = 0;
             path = null;
             isWarmupPhase = true; 
+            gridExpansionLevel = 0;
 
             resizeCanvas(); 
 
@@ -396,6 +394,7 @@
 
         function generateFood() {
             clearTimeout(foodTimer);
+            resizeCanvas(); // Always fit the screen before generating new food
             let foodX, foodY;
             do {
                 foodX = Math.floor(Math.random() * cols);
@@ -449,23 +448,45 @@
             }
         }
         
-        function countReachableCells(start) {
-            const queue = [start];
-            const visited = new Set([`${start.x},${start.y}`]);
-            let count = 0;
+        function isFoodEnclosed(foodPos) {
+            const queue = [foodPos];
+            const visited = new Set([`${foodPos.x},${foodPos.y}`]);
             while(queue.length > 0) {
                 const pos = queue.shift();
-                count++;
+
+                // If we reach an edge, it's not enclosed
+                if (pos.x <= 0 || pos.x >= cols - 1 || pos.y <= 0 || pos.y >= rows - 1) {
+                    return false;
+                }
+
                 const directions = [[0, 1], [0, -1], [1, 0], [-1, 0]];
                 for (const [dx, dy] of directions) {
                     const nextX = pos.x + dx, nextY = pos.y + dy;
-                    if (nextX >= 0 && nextX < cols && nextY >= 0 && nextY < rows && !visited.has(`${nextX},${nextY}`) && !isPositionOnSnake(nextX, nextY, false)) {
+                    // We only care about walls made by the snake's body
+                    if (!visited.has(`${nextX},${nextY}`) && !isPositionOnSnake(nextX, nextY, false)) {
                         visited.add(`${nextX},${nextY}`);
                         queue.push({x: nextX, y: nextY});
                     }
                 }
             }
-            return count;
+            // If the queue empties and we never hit an edge, it's enclosed.
+            return true;
+        }
+
+        function expandAndMove() {
+            gridExpansionLevel++;
+            resizeCanvas(); // Expand the grid first
+            
+            // Recalculate path on the new, larger grid
+            path = findShortestPath(snake[0], food);
+            if (path && isPathSafe(path)) {
+                isMoving = true;
+                currentPathIndex = 0;
+                moveSnake(); // Now move along the new path
+            } else {
+                // Failsafe: if still no path after expansion, just generate new food.
+                generateFood();
+            }
         }
 
         function checkSnakeAnswer() {
@@ -476,27 +497,25 @@
                 clearTimeout(foodTimer);
                 path = findShortestPath(snake[0], food);
                 
+                // Scenario 1: Path exists and is safe
                 if (path && isPathSafe(path)) {
                     isMoving = true;
                     currentPathIndex = 0;
                     moveSnake();
-                } else {
-                    // No valid path found, check why
-                    const reachableCells = countReachableCells(snake[0]);
-                    
-                    // If snake is in a cramped space (by "wall")
-                    if (snake.length > 5 && reachableCells < snake.length * 2) {
-                        snake.unshift({x: food.x, y: food.y}); 
-                        snakeScore++;
-                        resizeCanvas(); // Expand the grid
-                        generateFood();
-                    } else {
-                        // Snake has trapped the food in a loop, wait for timeout
-                        const elapsed = Date.now() - food.createdAt;
-                        const remainingTime = Math.max(0, food.lifespan - elapsed);
-                        foodTimer = setTimeout(handleFoodTimeout, remainingTime);
-                    }
+                    return;
                 }
+
+                // Scenario 2: No path, or path is unsafe
+                if (!path && isFoodEnclosed(food)) {
+                    // Food is trapped in a loop, do nothing and wait for timeout
+                    const elapsed = Date.now() - food.createdAt;
+                    const remainingTime = Math.max(0, food.lifespan - elapsed);
+                    foodTimer = setTimeout(handleFoodTimeout, remainingTime);
+                } else {
+                    // Snake is cramped by wall/self, or path is unsafe. Expand the grid.
+                    expandAndMove();
+                }
+
             } else { 
                 snake.pop();
                 if (snake.length < 1) gameOver();
@@ -526,7 +545,6 @@
                 } else {
                     isMoving = false;
                     snakeScore++;
-                    resizeCanvas();
                     generateFood();
                 }
                 return;
@@ -580,4 +598,3 @@
     </script>
 </body>
 </html>
-
