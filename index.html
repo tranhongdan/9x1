@@ -139,22 +139,26 @@
                 </div>
             </div>
             <div id="snake-controls" class="w-full p-2 bg-white/50 backdrop-blur-sm flex justify-center items-center gap-2">
-                 <div id="snake-answer-display-container" class="bg-white/80 rounded-lg text-3xl font-bold text-gray-800 w-24 h-14 flex items-center justify-center shadow-inner">
-                    <span id="snake-answer-display"></span>
-                </div>
                 <div id="snake-input-pad" class="grid grid-cols-5 gap-2">
                     <!-- JS will populate 0-9 -->
                 </div>
-                <button id="snake-clear-btn" class="snake-control-btn w-14 h-14 bg-red-500 text-white rounded-lg flex items-center justify-center shadow-md active:bg-red-600">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                         <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                </button>
-                 <button id="snake-submit-btn" class="snake-control-btn w-14 h-14 bg-green-500 text-white rounded-lg flex items-center justify-center shadow-md active:bg-green-600">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-                    </svg>
-                </button>
+                <div class="flex flex-col gap-2">
+                    <div id="snake-answer-display-container" class="bg-white/80 rounded-lg text-3xl font-bold text-gray-800 h-14 flex items-center justify-center shadow-inner">
+                        <span id="snake-answer-display"></span>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button id="snake-clear-btn" class="snake-control-btn w-14 h-14 bg-red-500 text-white rounded-lg flex items-center justify-center shadow-md active:bg-red-600">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                 <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                         <button id="snake-submit-btn" class="snake-control-btn w-14 h-14 bg-green-500 text-white rounded-lg flex items-center justify-center shadow-md active:bg-green-600">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -444,6 +448,25 @@
                 snakeInputPad.appendChild(btn);
             }
         }
+        
+        function countReachableCells(start) {
+            const queue = [start];
+            const visited = new Set([`${start.x},${start.y}`]);
+            let count = 0;
+            while(queue.length > 0) {
+                const pos = queue.shift();
+                count++;
+                const directions = [[0, 1], [0, -1], [1, 0], [-1, 0]];
+                for (const [dx, dy] of directions) {
+                    const nextX = pos.x + dx, nextY = pos.y + dy;
+                    if (nextX >= 0 && nextX < cols && nextY >= 0 && nextY < rows && !visited.has(`${nextX},${nextY}`) && !isPositionOnSnake(nextX, nextY, false)) {
+                        visited.add(`${nextX},${nextY}`);
+                        queue.push({x: nextX, y: nextY});
+                    }
+                }
+            }
+            return count;
+        }
 
         function checkSnakeAnswer() {
             if (isMoving || isWarmupPhase || snakeInputString === '') return;
@@ -452,15 +475,27 @@
             if (userAnswer === food.answer) {
                 clearTimeout(foodTimer);
                 path = findShortestPath(snake[0], food);
+                
                 if (path && isPathSafe(path)) {
                     isMoving = true;
                     currentPathIndex = 0;
                     moveSnake();
                 } else {
-                    snake.unshift({x: food.x, y: food.y}); 
-                    snakeScore++;
-                    resizeCanvas();
-                    generateFood();
+                    // No valid path found, check why
+                    const reachableCells = countReachableCells(snake[0]);
+                    
+                    // If snake is in a cramped space (by "wall")
+                    if (snake.length > 5 && reachableCells < snake.length * 2) {
+                        snake.unshift({x: food.x, y: food.y}); 
+                        snakeScore++;
+                        resizeCanvas(); // Expand the grid
+                        generateFood();
+                    } else {
+                        // Snake has trapped the food in a loop, wait for timeout
+                        const elapsed = Date.now() - food.createdAt;
+                        const remainingTime = Math.max(0, food.lifespan - elapsed);
+                        foodTimer = setTimeout(handleFoodTimeout, remainingTime);
+                    }
                 }
             } else { 
                 snake.pop();
@@ -545,3 +580,4 @@
     </script>
 </body>
 </html>
+
