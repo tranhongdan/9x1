@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Bảng Cửu Chương Vui Nhộn</title>
+    <title>Học Bảng Cửu Chương Vui Nhộn</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -69,7 +69,7 @@
         <!-- Home Screen -->
         <div id="home-screen" class="screen active h-full">
             <header class="text-center mb-8">
-                <h1 class="text-3xl md:text-5xl font-extrabold text-indigo-700">Học bảng cửu chương</h1>
+                <h1 class="text-3xl md:text-5xl font-extrabold text-indigo-700">Bé Vui Học Toán</h1>
                 <p class="text-gray-600 mt-2 text-lg">Chào mừng bé! Hãy chọn một chế độ nhé.</p>
             </header>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -134,7 +134,7 @@
                     </svg>
                 </button>
                 <div id="game-over-screen" class="absolute inset-0 bg-black/70 text-white text-center flex-col justify-center items-center rounded-lg hidden">
-                    <h3 class="text-5xl font-extrabold">Kết thúc!</h3>
+                    <h3 class="text-5xl font-extrabold">Thua Rồi!</h3>
                     <p class="text-2xl mt-2">Điểm của bạn: <span id="final-score">0</span></p>
                     <button id="restart-snake-btn" class="mt-6 bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-8 rounded-lg text-xl">Chơi Lại</button>
                 </div>
@@ -145,7 +145,7 @@
                 </div>
                 <div class="w-px bg-gray-300 self-stretch mx-2"></div>
                 <div class="flex flex-col gap-2">
-                    <div id="snake-answer-display-container" class="bg-white/80 rounded-lg text-3xl font-bold text-gray-800 h-14 flex items-center justify-center shadow-inner shadow-xl">
+                    <div id="snake-answer-display-container" class="w-full bg-white/80 rounded-lg text-3xl font-bold text-gray-800 h-14 flex items-center justify-center shadow-inner shadow-xl">
                         <span id="snake-answer-display"></span>
                     </div>
                     <div class="grid grid-cols-3 gap-2">
@@ -159,8 +159,13 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
                             </svg>
                         </button>
-                        <button id="snake-end-btn" class="snake-control-btn w-14 h-14 bg-orange-500 text-white rounded-lg flex items-center justify-center shadow-md active:bg-orange-600 text-xl font-bold">
-                             END
+                         <button id="snake-self-destruct-btn" class="snake-control-btn w-14 h-14 bg-blue-500 text-white rounded-lg flex items-center justify-center shadow-md active:bg-blue-600">
+                             <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                              <circle cx="6" cy="6" r="3" />
+                              <circle cx="6" cy="18" r="3" />
+                              <line x1="8.59" y1="8.59" x2="20" y2="20" />
+                              <line x1="8.59" y1="15.41" x2="20" y2="4" />
+                            </svg>
                         </button>
                     </div>
                 </div>
@@ -255,7 +260,7 @@
         const snakeInputPad = document.getElementById('snake-input-pad');
         const snakeSubmitBtn = document.getElementById('snake-submit-btn');
         const snakeClearBtn = document.getElementById('snake-clear-btn');
-        const snakeEndBtn = document.getElementById('snake-end-btn');
+        const snakeSelfDestructBtn = document.getElementById('snake-self-destruct-btn');
         const snakeAnswerDisplay = document.getElementById('snake-answer-display');
         let snakeInputString = '';
 
@@ -604,6 +609,11 @@
             return null;
         }
         
+        function selfDestruct() {
+            if (isMoving || snake.length <= 1) return;
+            snake.pop();
+        }
+
         function gameOver() {
             if(snakeGameOver) return;
             stopSnakeGame();
@@ -620,11 +630,11 @@
             snakeSubmitBtn.addEventListener('click', checkSnakeAnswer);
             snakeClearBtn.addEventListener('click', handleClearInput);
             restartSnakeBtn.addEventListener('click', startSnakeGame);
-            snakeEndBtn.addEventListener('click', gameOver);
+            // snakeEndBtn.addEventListener('click', gameOver);
+            snakeSelfDestructBtn.addEventListener('click', selfDestruct);
             window.addEventListener('resize', resizeCanvas);
         }
         initSnakeGame();
     </script>
 </body>
 </html>
-
